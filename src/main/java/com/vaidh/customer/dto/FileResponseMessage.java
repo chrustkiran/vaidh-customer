@@ -1,23 +1,14 @@
 package com.vaidh.customer.dto;
 
 
-public class FileResponseMessage implements ResponseMessage{
+public class FileResponseMessage extends ResponseCommonMessage{
     private static final long serialVersionUID = 1L;
 
-    private String message;
     private String url;
 
     public FileResponseMessage(String message, String url) {
-        this.message = message;
+        super.setMessage(message);
         this.url = url;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getUrl() {

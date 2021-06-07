@@ -6,13 +6,17 @@ import com.vaidh.customer.model.enums.ProductUnit;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "products")
-public class Products {
+@Table(name = "product")
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long productId;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private ProductCategory productCategory;
+
+    @Enumerated(EnumType.STRING)
     private ProductUnit productUnit;
     private Double price;
     private String imageUrl;

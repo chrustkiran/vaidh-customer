@@ -56,7 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (authenticationRequest != null) {
             //check if already user exist
             Optional<UserEntity> user = userDetailsService.loadUserEntityByUserName(authenticationRequest.getUsername());
-            if (user.isPresent()) {
+            if (!user.isPresent()) {
                 userDetailsService.saveUser(authenticationRequest);
                 return createAuthenticationToken(new JwtLoginRequest(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
             } else {
