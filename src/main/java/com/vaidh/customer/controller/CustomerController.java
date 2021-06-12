@@ -1,6 +1,7 @@
 package com.vaidh.customer.controller;
 
 import com.vaidh.customer.dto.JwtRegisterRequest;
+import com.vaidh.customer.dto.ResponseMessage;
 import com.vaidh.customer.model.inventory.Product;
 import com.vaidh.customer.service.AuthenticationServiceImpl;
 import com.vaidh.customer.service.CustomerService;
@@ -27,14 +28,23 @@ public class CustomerController {
 
     @GetMapping("/test")
     public String test() {
-        fireBaseStorageService.saveTestDate();
+        //fireBaseStorageService.saveTestDate();
         return "working";
     }
 
     @GetMapping(value = "/get-all-products")
-    public ResponseEntity<List<Product>> getAllProducts() throws Exception {
+    public ResponseEntity<List<Product>> getAllProducts() {
         try  {
             return ResponseEntity.ok(customerService.getAllProducts());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping()
+    public ResponseEntity<ResponseMessage> placeOrder() throws Exception {
+        try  {
+            return ResponseEntity.ok(customerService.placeOrder());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

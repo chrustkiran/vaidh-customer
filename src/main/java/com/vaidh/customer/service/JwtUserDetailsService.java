@@ -39,4 +39,11 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
        return false;
     }
+
+    public UserDetails loadUserByPhoneNumber(String phoneNumber) throws UsernameNotFoundException {
+        if (phoneNumber == null || phoneNumber.isEmpty()) throw new UsernameNotFoundException("Invalid phone number");
+        Optional<UserEntity> userEntity = userRepository.findByPhoneNumber(phoneNumber);
+        return new User(userEntity.get().getUsername(), userEntity.get().getPassword(), new ArrayList<>());
+    }
+
 }

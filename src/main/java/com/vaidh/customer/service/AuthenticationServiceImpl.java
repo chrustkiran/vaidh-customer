@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -41,10 +42,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public JwtResponse createAuthenticationToken(JwtLoginRequest jwtLoginRequest) throws Exception {
-        authenticate(jwtLoginRequest.getUsername(), jwtLoginRequest.getPassword());
-
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(jwtLoginRequest.getUsername());
+        UserDetails userDetails = null;
+        if (jwtLoginRequest.getUsername() != null && !jwtLoginRequest.getUsername().isEmpty()) {
+            userDetails = userDetailsService
+                    .loadUserByUsername(jwtLoginRequest.getUsername());
+        } else if (jwtLoginRequest.getPhoneNumber() != null && jwtLoginRequest.getPhoneNumber().isEmpty()) {
+            userDetails = userDetailsService.loadUserByPhoneNumber(jwtLoginRequest.getPhoneNumber());
+        }
+        authenticate(userDetails.getUsername(), jwtLoginRequest.getPassword());
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
@@ -64,5 +69,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
         }
         return null;
+    }
+
+    @Override
+    public String getCurrentUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

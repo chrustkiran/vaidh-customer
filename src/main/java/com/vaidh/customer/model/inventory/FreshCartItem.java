@@ -10,7 +10,7 @@ public class FreshCartItem {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long freshCartItemId;
 
-    private String fresh_cart_reference_id;
+    private String freshCartReferenceId;
 
     private Long productId;
 
@@ -18,14 +18,14 @@ public class FreshCartItem {
 
     private Integer quantity;
 
-    public FreshCartItem(String fresh_cart_reference_id, Long productId, Integer quantity) {
-        this.fresh_cart_reference_id = fresh_cart_reference_id;
+    public FreshCartItem(String freshCartReferenceId, Long productId, Integer quantity) {
+        this.freshCartReferenceId = freshCartReferenceId;
         this.productId = productId;
         this.quantity = quantity;
     }
 
-    public FreshCartItem(String fresh_cart_reference_id, String prescribedImage) {
-        this.fresh_cart_reference_id = fresh_cart_reference_id;
+    public FreshCartItem(String freshCartReferenceId, String prescribedImage) {
+        this.freshCartReferenceId = freshCartReferenceId;
         this.prescribedImage = prescribedImage;
     }
 
@@ -37,12 +37,12 @@ public class FreshCartItem {
         this.freshCartItemId = freshCartItemId;
     }
 
-    public String getFresh_cart_reference_id() {
-        return fresh_cart_reference_id;
+    public String getFreshCartReferenceId() {
+        return freshCartReferenceId;
     }
 
-    public void setFresh_cart_reference_id(String fresh_cart_reference_id) {
-        this.fresh_cart_reference_id = fresh_cart_reference_id;
+    public void setFresh_cart_reference_id(String freshCartReferenceId) {
+        this.freshCartReferenceId = freshCartReferenceId;
     }
 
     public Long getProductId() {

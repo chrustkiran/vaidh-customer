@@ -5,23 +5,26 @@ import com.vaidh.customer.dto.ProductDTO;
 import com.vaidh.customer.dto.ResponseMessage;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.service.InventoryService;
+import com.vaidh.customer.service.InventoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 //shop's end point
 @RestController
 @RequestMapping("/owner")
-public class InventoryController {
+public class AdminController {
+
 
     @Autowired
     InventoryService inventoryService;
 
-    @PostMapping()
-    public ResponseEntity<ResponseMessage> addProduct(ProductDTO product) {
+    @PostMapping("/add-product")
+    public ResponseEntity<ResponseMessage> addProduct(@RequestBody ProductDTO product) {
         if (product != null) {
             //validate product
             try {

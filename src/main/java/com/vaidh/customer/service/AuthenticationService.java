@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
 public interface AuthenticationService {
     JwtResponse createAuthenticationToken(JwtLoginRequest jwtLoginRequest) throws Exception;
     JwtResponse createUser(JwtRegisterRequest authenticationRequest) throws AlreadyUserExistException, ModuleException, Exception;
+    String getCurrentUserName();
 }

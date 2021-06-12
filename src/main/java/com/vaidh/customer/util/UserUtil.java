@@ -14,7 +14,6 @@ public class UserUtil {
             userEntity.setAddress(request.getAddress());
             userEntity.setPassword(encryptedPassword);
 
-
             return userEntity;
         }
         return null;
