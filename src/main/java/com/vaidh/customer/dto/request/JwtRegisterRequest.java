@@ -1,4 +1,4 @@
-package com.vaidh.customer.dto;
+package com.vaidh.customer.dto.request;
 
 import java.io.Serializable;
 

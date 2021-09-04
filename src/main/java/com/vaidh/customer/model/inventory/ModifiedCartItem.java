@@ -18,20 +18,12 @@ public class ModifiedCartItem {
 
     private Date createdTime;
 
-    @ManyToMany
+    @OneToOne
     @JoinColumn(name = "productId")
-    private List<Product> product;
+    private Product product;
 
     @Enumerated(EnumType.STRING)
     private ModifiedType modifiedType;
-
-    public Long getModifiedCartItemId() {
-        return modifiedCartItemId;
-    }
-
-    public void setModifiedCartItemId(Long modifiedCartItemId) {
-        this.modifiedCartItemId = modifiedCartItemId;
-    }
 
     public String getFreshCartReferenceId() {
         return freshCartReferenceId;
@@ -49,11 +41,11 @@ public class ModifiedCartItem {
         this.createdTime = createdTime;
     }
 
-    public List<Product> getProduct() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(List<Product> product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 

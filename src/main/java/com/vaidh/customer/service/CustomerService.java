@@ -1,7 +1,9 @@
 package com.vaidh.customer.service;
 
+import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ItemAddedResponse;
-import com.vaidh.customer.dto.OrderPlacedResponse;
+import com.vaidh.customer.dto.request.ModifyUserRequest;
+import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.model.inventory.Product;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,5 +17,9 @@ public interface CustomerService {
 
     ItemAddedResponse addPrescriptionToCart(MultipartFile file) throws ModuleException;
 
-    OrderPlacedResponse placeOrder();
+    CommonMessageResponse placeOrder();
+
+    List<CommonResults> getHistories();
+
+    CommonMessageResponse modifyUserReqyest(ModifyUserRequest modifyUserRequest) throws ModuleException;
 }

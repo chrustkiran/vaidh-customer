@@ -1,5 +1,6 @@
 package com.vaidh.customer.model.inventory;
 
+import com.google.firebase.database.DataSnapshot;
 import com.sun.istack.NotNull;
 import com.vaidh.customer.model.enums.OrderStatus;
 
@@ -38,6 +39,13 @@ public class Order {
     @OneToOne
     @JoinColumn(name = "paymentId")
     private Payment payment;
+
+    public Order(String freshCartReferenceId, String orderPlacedBy, Date orderCreatedTime) {
+        this.freshCartReferenceId = freshCartReferenceId;
+        this.orderPlacedBy = orderPlacedBy;
+        this.orderCreatedTime = orderCreatedTime;
+        this.orderStatus = OrderStatus.CREATED;
+    }
 
     public Long getOrderId() {
         return orderId;

@@ -1,9 +1,16 @@
 package com.vaidh.customer.util;
 
+import com.vaidh.customer.dto.ModifyProductStatus;
 import com.vaidh.customer.dto.ProductDTO;
+import com.vaidh.customer.dto.request.ModifyOrderRequest;
+import com.vaidh.customer.model.enums.ModifiedType;
 import com.vaidh.customer.model.enums.ProductCategory;
 import com.vaidh.customer.model.enums.ProductUnit;
+import com.vaidh.customer.model.inventory.ModifiedCartItem;
 import com.vaidh.customer.model.inventory.Product;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InventoryUtil {
     public static Product convertToProduct(ProductDTO productDTO) {
@@ -44,5 +51,38 @@ public class InventoryUtil {
             }
         }
         return ProductCategory.UNKNOWN;
+    }
+
+    public static List<ModifiedCartItem> getModifiedCardItems(ModifyOrderRequest modifyOrderRequest) {
+        List<ModifiedCartItem> modifiedCartItems = new ArrayList<>();
+        if (modifyOrderRequest != null && !modifyOrderRequest.getProducts().isEmpty()) {
+            for (ModifyProductStatus product : modifyOrderRequest.getProducts()) {
+                ModifiedCartItem modifiedCartItem = new ModifiedCartItem();
+
+                modifiedCartItem.setCreatedTime(modifyOrderRequest.getModifiedTime());
+                modifiedCartItem.setFreshCartReferenceId(modifyOrderRequest.getReferenceCartId());
+                modifiedCartItem.setProduct(new Product(product.getProductId()));
+                modifiedCartItem.setModifiedType(getModifiedType(product.getStatus()));
+
+                modifiedCartItems.add(modifiedCartItem);
+            }
+        }
+        return modifiedCartItems;
+    }
+
+    private static ModifiedType getModifiedType(String status) {
+        if (!status.isEmpty()) {
+            switch (status.toUpperCase()){
+                case "EXISTING":
+                    return ModifiedType.EXISTING;
+                case "ADDED":
+                    return ModifiedType.ADDED;
+                case "REMOVED":
+                    return ModifiedType.REMOVED;
+                default:
+                    return null;
+            }
+        }
+        return null;
     }
 }

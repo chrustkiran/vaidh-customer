@@ -1,6 +1,6 @@
 package com.vaidh.customer.util;
 
-import com.vaidh.customer.dto.JwtRegisterRequest;
+import com.vaidh.customer.dto.request.JwtRegisterRequest;
 import com.vaidh.customer.model.customer.UserEntity;
 
 public class UserUtil {

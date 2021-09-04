@@ -1,4 +1,4 @@
-package com.vaidh.customer.model.inventory;
+package com.vaidh.customer.dto.request;
 
 import com.vaidh.customer.model.enums.ProductCategory;
 import com.vaidh.customer.model.enums.ProductStatus;
@@ -6,27 +6,20 @@ import com.vaidh.customer.model.enums.ProductUnit;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "product")
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+public class ModifyProductRequest {
     private Long productId;
     private String name;
-
-    @Enumerated(EnumType.STRING)
     private ProductCategory productCategory;
-
-    @Enumerated(EnumType.STRING)
     private ProductUnit productUnit;
     private Double price;
     private String imageUrl;
-    @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
-    public Product() {}
+    public Long getProductId() {
+        return productId;
+    }
 
-    public Product(Long productId) {
+    public void setProductId(Long productId) {
         this.productId = productId;
     }
 

@@ -1,25 +1,29 @@
 package com.vaidh.customer.service;
 
 import com.vaidh.customer.constants.ResponseMessage;
+import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ItemAddedResponse;
-import com.vaidh.customer.dto.OrderPlacedResponse;
+import com.vaidh.customer.dto.request.ModifyUserRequest;
+import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.exception.ModuleException;
+import com.vaidh.customer.message.OrderCreateMessage;
+import com.vaidh.customer.model.customer.UserEntity;
 import com.vaidh.customer.model.enums.FreshCartStatus;
 import com.vaidh.customer.model.inventory.FreshCart;
 import com.vaidh.customer.model.inventory.FreshCartItem;
+import com.vaidh.customer.model.inventory.Order;
 import com.vaidh.customer.model.inventory.Product;
-import com.vaidh.customer.repository.FreshCartItemRepository;
-import com.vaidh.customer.repository.FreshCartRepository;
-import com.vaidh.customer.repository.ProductRepository;
+import com.vaidh.customer.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -38,6 +42,15 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     AuthenticationService authenticationService;
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
+    FireBaseStorageServiceImpl fireBaseStorageService;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Override
     public List<Product> getAllProducts() {
@@ -66,10 +79,54 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public OrderPlacedResponse placeOrder() {
-        UUID uuid = UUID.randomUUID();
-        uuid.toString();
+    public CommonMessageResponse placeOrder() {
+        FreshCart currentFreshCart = freshCartRepository.findByUsername(authenticationService.getCurrentUserName()).get();
+        //save new order entry to db
+        orderRepository.save(new Order(currentFreshCart.getCartReferenceId(), authenticationService.getCurrentUserName(),
+                new Date()));
+        //active cart -> deactive
+        deActivateCurrentFreshCart(currentFreshCart);
+        //fetching cart item details
+        List<FreshCartItem> freshCartItems = freshCartItemRepository.findByFreshCartReferenceId
+                (currentFreshCart.getCartReferenceId());
+        //sending messaging to firebase
+        fireBaseStorageService.saveTestDate(currentFreshCart.getCartReferenceId(), new OrderCreateMessage(
+                authenticationService.getCurrentUserName(), freshCartItems.stream().filter(freshCartItem ->
+                freshCartItem.getProductId() != null).collect(Collectors.toMap(FreshCartItem::getProductId,
+                FreshCartItem::getQuantity, (x,y)-> x))
+        , freshCartItems.stream().filter(freshCartItem -> !freshCartItem.getPrescribedImage().isEmpty()).map(freshCartItem ->
+                freshCartItem.getPrescribedImage()).collect(Collectors.toList())));
+        return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_PLACED_ORDER + " :: " + currentFreshCart.getCartReferenceId());
+    }
+
+    @Override
+    public List<CommonResults> getHistories() {
         return null;
+    }
+
+    @Override
+    public CommonMessageResponse modifyUserReqyest(ModifyUserRequest modifyUserRequest) throws ModuleException {
+        if (modifyUserRequest != null) {
+            String username = authenticationService.getCurrentUserName();
+            Optional<UserEntity> userOpt = userRepository.findByUsername(username);
+            if (userOpt.isPresent()) {
+                UserEntity user = userOpt.get();
+                if (!modifyUserRequest.getAddress().isEmpty()) {
+                    user.setAddress(modifyUserRequest.getAddress());
+                }
+                if (!modifyUserRequest.getName().isEmpty()) {
+                    user.setName(modifyUserRequest.getName());
+                }
+                userRepository.save(user);
+                return new CommonMessageResponse(SUCCESSFULLY_MODIFIED);
+            }
+        }
+        throw new ModuleException("Bad Strings");
+    }
+
+    private void deActivateCurrentFreshCart(FreshCart freshCart) {
+        freshCart.setStatus(FreshCartStatus.DE_ACTIVE);
+        freshCartRepository.save(freshCart);
     }
 
 
@@ -93,7 +150,6 @@ public class CustomerServiceImpl implements CustomerService {
             }
         }
     }
-
 
 
 
