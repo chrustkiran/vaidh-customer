@@ -2,7 +2,6 @@ package com.vaidh.customer.controller;
 
 import com.vaidh.customer.dto.CommonResponse;
 import com.vaidh.customer.dto.ErrorResponse;
-import com.vaidh.customer.dto.ResponseMessage;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.model.inventory.Product;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,7 +63,7 @@ public class CustomerController {
     public ResponseEntity<CommonResponse> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) throws ModuleException {
         try {
             if (modifyUserRequest != null) {
-                return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.modifyUserReqyest(modifyUserRequest))));
+                return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.modifyUserRequest(modifyUserRequest))));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

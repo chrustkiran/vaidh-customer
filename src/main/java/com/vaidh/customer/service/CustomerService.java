@@ -21,5 +21,5 @@ public interface CustomerService {
 
     List<CommonResults> getHistories();
 
-    CommonMessageResponse modifyUserReqyest(ModifyUserRequest modifyUserRequest) throws ModuleException;
+    CommonMessageResponse modifyUserRequest(ModifyUserRequest modifyUserRequest) throws ModuleException;
 }

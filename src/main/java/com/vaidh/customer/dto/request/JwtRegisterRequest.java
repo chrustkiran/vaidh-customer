@@ -9,7 +9,7 @@ public class JwtRegisterRequest implements Serializable {
     private String name;
     private String emailAddress;
     private String phoneNumber;
-    private String Address;
+    private String address;
     private String password;
 
     public String getUsername() {
@@ -45,11 +45,11 @@ public class JwtRegisterRequest implements Serializable {
     }
 
     public String getAddress() {
-        return Address;
+        return address;
     }
 
     public void setAddress(String address) {
-        Address = address;
+        this.address = address;
     }
 
     public String getPassword() {

@@ -14,6 +14,7 @@ import com.vaidh.customer.model.inventory.FreshCartItem;
 import com.vaidh.customer.model.inventory.Order;
 import com.vaidh.customer.model.inventory.Product;
 import com.vaidh.customer.repository.*;
+import com.vaidh.customer.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,16 +106,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CommonMessageResponse modifyUserReqyest(ModifyUserRequest modifyUserRequest) throws ModuleException {
+    public CommonMessageResponse modifyUserRequest(ModifyUserRequest modifyUserRequest) throws ModuleException {
         if (modifyUserRequest != null) {
             String username = authenticationService.getCurrentUserName();
             Optional<UserEntity> userOpt = userRepository.findByUsername(username);
             if (userOpt.isPresent()) {
                 UserEntity user = userOpt.get();
-                if (!modifyUserRequest.getAddress().isEmpty()) {
+                if (!StringUtil.isNullOrEmpty(modifyUserRequest.getAddress())) {
                     user.setAddress(modifyUserRequest.getAddress());
                 }
-                if (!modifyUserRequest.getName().isEmpty()) {
+                if (!StringUtil.isNullOrEmpty(modifyUserRequest.getName())) {
                     user.setName(modifyUserRequest.getName());
                 }
                 userRepository.save(user);
