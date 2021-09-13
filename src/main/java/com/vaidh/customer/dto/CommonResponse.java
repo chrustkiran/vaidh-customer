@@ -1,5 +1,7 @@
 package com.vaidh.customer.dto;
 
+import com.vaidh.customer.model.inventory.Product;
+
 import java.util.ArrayList;
 import java.util.List;
 

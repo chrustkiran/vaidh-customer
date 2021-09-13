@@ -98,4 +98,9 @@ public class InventoryServiceImpl implements InventoryService{
             throw new ModuleException("Some fields are missing");
         }
     }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
 }

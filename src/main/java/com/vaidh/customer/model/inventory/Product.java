@@ -1,5 +1,6 @@
 package com.vaidh.customer.model.inventory;
 
+import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.model.enums.ProductCategory;
 import com.vaidh.customer.model.enums.ProductStatus;
 import com.vaidh.customer.model.enums.ProductUnit;
@@ -8,7 +9,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "product")
-public class Product {
+public class Product implements CommonResults {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long productId;

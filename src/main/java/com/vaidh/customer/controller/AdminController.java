@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 //shop's end point
@@ -71,7 +72,7 @@ public class AdminController {
                 CommonResponse(true, new ErrorResponse(HttpStatus.BAD_REQUEST, "Some fields are missing")));
     }
 
-    @PostMapping
+    @PostMapping("/modify-product")
     public ResponseEntity<CommonResponse> modifyProduct(@RequestBody ModifyProductRequest modifyProductRequest) {
         if (modifyProductRequest != null && modifyProductRequest.getProductId() != null) {
             try {
@@ -83,5 +84,15 @@ public class AdminController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new
                 CommonResponse(true, new ErrorResponse(HttpStatus.BAD_REQUEST, "Some fields are missing")));
+    }
+
+    @GetMapping(value = "/get-all-products")
+    public ResponseEntity<CommonResponse> getAllProducts() {
+        try  {
+            return ResponseEntity.ok(new CommonResponse(new ArrayList<>(inventoryService.getAllProducts())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
+        }
     }
 }

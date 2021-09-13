@@ -8,6 +8,7 @@ import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.model.inventory.Product;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface CustomerService {

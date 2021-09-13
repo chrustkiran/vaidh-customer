@@ -19,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED;
@@ -55,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllActiveProducts();
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,11 +32,12 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/get-all-products")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<CommonResponse> getAllProducts() {
         try  {
-            return ResponseEntity.ok(customerService.getAllProducts());
+            return ResponseEntity.ok(new CommonResponse(new ArrayList<>(customerService.getAllProducts())));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
         }
     }
 
