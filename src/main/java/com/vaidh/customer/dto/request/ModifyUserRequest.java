@@ -2,7 +2,7 @@ package com.vaidh.customer.dto.request;
 
 public class ModifyUserRequest {
     private String name;
-    private String Address;
+    private String address;
 
     public String getName() {
         return name;
@@ -13,10 +13,10 @@ public class ModifyUserRequest {
     }
 
     public String getAddress() {
-        return Address;
+        return address;
     }
 
     public void setAddress(String address) {
-        Address = address;
+        this.address = address;
     }
 }
