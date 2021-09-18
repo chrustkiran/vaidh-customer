@@ -108,7 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public CommonMessageResponse forgetPassword(String emailAddress) {
         final String code = generateCode();
         mailService.sendMail(MailConstant.getForgetPasswordMessage(code),
-                "christkiran.15@cse.mrt.ac.lk", CHANGE_PASSWORD_SUBJ);
+                emailAddress, CHANGE_PASSWORD_SUBJ);
         forgetPasswordRepository.save(new ForgetPassword(emailAddress, code));
         return new CommonMessageResponse("Sent");
     }

@@ -3,17 +3,17 @@ package com.vaidh.customer.dto.response;
 import com.vaidh.customer.dto.CommonResults;
 
 public class ConfirmCodeResponse implements CommonResults {
-    private String secredCode;
+    private String secretCode;
 
-    public ConfirmCodeResponse(String secredCode) {
-        this.secredCode = secredCode;
+    public ConfirmCodeResponse(String secretCode) {
+        this.secretCode = secretCode;
     }
 
-    public String getSecredCode() {
-        return secredCode;
+    public String getSecretCode() {
+        return secretCode;
     }
 
-    public void setSecredCode(String secredCode) {
-        this.secredCode = secredCode;
+    public void setSecretCode(String secretCode) {
+        this.secretCode = secretCode;
     }
 }
