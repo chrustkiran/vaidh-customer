@@ -7,6 +7,7 @@ import com.vaidh.customer.dto.JwtResponse;
 import com.vaidh.customer.dto.request.ModifyPasswordRequest;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.dto.response.ConfirmCodeResponse;
+import com.vaidh.customer.dto.response.UserDetailsResponse;
 import com.vaidh.customer.exception.AlreadyUserExistException;
 import com.vaidh.customer.exception.ModuleException;
 import org.springframework.stereotype.Service;
@@ -21,4 +22,6 @@ public interface AuthenticationService {
     CommonMessageResponse forgetPassword(String emailAddress);
     ConfirmCodeResponse confirmForgetPasswordCode(String emailAddress, String code) throws ModuleException;
     CommonMessageResponse modifyPassword(ModifyPasswordRequest modifyPasswordRequest) throws ModuleException;
+    String refreshToken() throws Exception;
+    UserDetailsResponse getUserDetails() throws Exception;
 }

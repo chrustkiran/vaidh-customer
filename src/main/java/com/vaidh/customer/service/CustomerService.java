@@ -14,9 +14,9 @@ import java.util.List;
 public interface CustomerService {
     List<Product> getAllProducts();
 
-    ItemAddedResponse addItemToCart(Long productId, Integer quantity) throws ModuleException;
+    CommonMessageResponse addItemToCart(Long productId, Integer quantity) throws ModuleException;
 
-    ItemAddedResponse addPrescriptionToCart(MultipartFile file) throws ModuleException;
+    CommonMessageResponse addPrescriptionToCart(MultipartFile file) throws ModuleException;
 
     CommonMessageResponse placeOrder();
 

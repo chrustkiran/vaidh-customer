@@ -9,6 +9,7 @@ import com.vaidh.customer.dto.JwtResponse;
 import com.vaidh.customer.dto.request.ModifyPasswordRequest;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.dto.response.ConfirmCodeResponse;
+import com.vaidh.customer.dto.response.UserDetailsResponse;
 import com.vaidh.customer.exception.AlreadyUserExistException;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.model.customer.ForgetPassword;
@@ -16,6 +17,7 @@ import com.vaidh.customer.model.customer.UserEntity;
 import com.vaidh.customer.model.enums.ForgetPasswordCodeStatus;
 import com.vaidh.customer.repository.ForgetPasswordRepository;
 import com.vaidh.customer.repository.UserRepository;
+import com.vaidh.customer.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -144,6 +146,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
            }
         }
         throw new ModuleException("Bad Strings");
+    }
+
+    @Override
+    public String refreshToken() throws Exception {
+        return jwtTokenUtil.generateToken(userDetailsService
+                .loadUserByUsername(getCurrentUserName()));
+    }
+
+    @Override
+    public UserDetailsResponse getUserDetails() throws Exception {
+        Optional<UserEntity> userEntityOptional = this.userRepository.findByUsername(getCurrentUserName());
+        if (userEntityOptional.isPresent()) {
+            return UserUtil.convertToUserDetails(userEntityOptional.get());
+        }
+        throw new Exception("Something went wrong");
     }
 
 }

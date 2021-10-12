@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,4 +76,23 @@ public class CustomerController {
                 new CommonResponse(true, new ErrorResponse(HttpStatus.BAD_REQUEST, new ModuleException("Bad Strings"))));
     }
 
+    @GetMapping(value = "/add-item-to-cart")
+    public ResponseEntity<CommonResponse> addItemToCart(@RequestParam Long productId, @RequestParam int quantity) {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addItemToCart(productId, quantity))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
+    @PostMapping(value = "/add-prescription-to-cart")
+    public ResponseEntity<CommonResponse> addPrescriptionToCart(@RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addPrescriptionToCart(file))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
 }

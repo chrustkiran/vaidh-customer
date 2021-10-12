@@ -57,21 +57,21 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ItemAddedResponse addItemToCart(Long productId, Integer quantity) throws ModuleException {
+    public CommonMessageResponse addItemToCart(Long productId, Integer quantity) throws ModuleException {
         try {
             freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), productId, quantity));
-            return new ItemAddedResponse(ResponseMessage.SUCCESSFULLY_ADDED);
+            return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
         }
     }
 
     @Override
-    public ItemAddedResponse addPrescriptionToCart(MultipartFile file) throws ModuleException {
+    public CommonMessageResponse addPrescriptionToCart(MultipartFile file) throws ModuleException {
         try {
             String url = fileStorageService.save(file);
             freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), url));
-            return new ItemAddedResponse("Successfully added");
+            return new CommonMessageResponse("Successfully added");
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
         }
