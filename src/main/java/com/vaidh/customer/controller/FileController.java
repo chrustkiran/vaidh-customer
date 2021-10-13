@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 @RestController
 @CrossOrigin
 @RequestMapping("/file")
@@ -41,7 +40,7 @@ public class FileController {
     }
 
     @GetMapping("/load-file")
-    public ResponseEntity<Resource> uploadFile(@RequestParam String fileName) {
+    public ResponseEntity<Resource> loadFile(@RequestParam String fileName) {
         String message = "";
         try {
             Resource file = storageService.load(fileName);

@@ -1,5 +1,7 @@
 package com.vaidh.customer.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.nio.file.Paths;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService{
+    private final static Logger LOGGER = LoggerFactory.getLogger(FileStorageServiceImpl.class);
     private final Path root = Paths.get("uploads");
 
     public void init() {
@@ -31,7 +34,7 @@ public class FileStorageServiceImpl implements FileStorageService{
                 init();
             }
             Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
-            return root.toString() + "/" + file.getOriginalFilename();
+            return file.getOriginalFilename();
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
@@ -40,6 +43,7 @@ public class FileStorageServiceImpl implements FileStorageService{
     @Override
     public Resource load(String filename) {
         try {
+            LOGGER.info("request at load :: file-storage-service :: filename ", filename);
             Path file = root.resolve(filename);
             Resource resource = new UrlResource(file.toUri());
 
