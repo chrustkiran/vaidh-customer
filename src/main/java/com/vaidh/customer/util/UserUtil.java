@@ -43,7 +43,7 @@ public class UserUtil {
 
     private static List<String> convertObjectToString(Object[] objs) {
         if (objs != null) {
-            return Arrays.stream(ProductUnit.values()).map(s -> s.toString()).collect(Collectors.toList());
+            return Arrays.stream(objs).map(s -> s.toString()).collect(Collectors.toList());
         }
         return null;
     }
