@@ -46,7 +46,7 @@ public class UserDetailsResponse implements CommonResults {
     }
 
     public void setInfo(String key,List<String> values) {
-        if (this.info != null) {
+        if (this.info == null) {
             this.info = new HashMap<>();
             this.info.put(key, values);
         } else {
