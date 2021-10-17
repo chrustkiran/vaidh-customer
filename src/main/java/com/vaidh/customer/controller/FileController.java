@@ -52,6 +52,7 @@ public class FileController {
                     .body(file);
 
         } catch (Exception e) {
+            logger.error("error on loadFile :: " + e);
             //message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
         }
