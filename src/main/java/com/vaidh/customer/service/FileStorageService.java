@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface FileStorageService {
     public String save(MultipartFile file);
 
-    public Resource load(String filename);
+    public String load(String filename);
 
     public void deleteAll();
 

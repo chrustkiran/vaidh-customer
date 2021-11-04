@@ -1,6 +1,7 @@
 package com.vaidh.customer.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,8 @@ public class FireBaseInitConf {
     @Value("${firebase.db.url}")
     private String firebaseDbUrl;
 
+    private String bucketUrl = "vaidh-d7457.appspot.com";
+
     @PostConstruct
     public void initialize() {
         try {
@@ -23,7 +26,7 @@ public class FireBaseInitConf {
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl(firebaseDbUrl)
+                    .setDatabaseUrl(firebaseDbUrl).setStorageBucket(bucketUrl)
                     .build();
 
             FirebaseApp.initializeApp(options);

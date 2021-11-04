@@ -23,4 +23,6 @@ public interface CustomerService {
     List<CommonResults> getHistories();
 
     CommonMessageResponse modifyUserRequest(ModifyUserRequest modifyUserRequest) throws ModuleException;
+
+    List<Product> getProductByName(String name);
 }

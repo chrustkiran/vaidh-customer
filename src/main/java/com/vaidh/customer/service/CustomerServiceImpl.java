@@ -123,6 +123,11 @@ public class CustomerServiceImpl implements CustomerService {
         throw new ModuleException("Bad Strings");
     }
 
+    @Override
+    public List<Product> getProductByName(String name) {
+        return productRepository.findProductsByName(name);
+    }
+
     private void deActivateCurrentFreshCart(FreshCart freshCart) {
         freshCart.setStatus(FreshCartStatus.DE_ACTIVE);
         freshCartRepository.save(freshCart);

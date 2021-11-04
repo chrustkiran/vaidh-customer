@@ -40,16 +40,13 @@ public class FileController {
     }
 
     @GetMapping("/load-file")
-    public ResponseEntity<Resource> loadFile(@RequestParam String fileName) {
+    public ResponseEntity<String> loadFile(@RequestParam String fileName) {
         String message = "";
         try {
-            Resource file = storageService.load(fileName);
+            String url = storageService.load(fileName);
 
            // message = "Uploaded the file successfully: " + file.getOriginalFilename();
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("image/jpeg"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-                    .body(file);
+            return ResponseEntity.ok().body(url);
 
         } catch (Exception e) {
             logger.error("error on loadFile :: " + e);

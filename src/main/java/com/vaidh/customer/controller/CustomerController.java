@@ -32,15 +32,6 @@ public class CustomerController {
         return "working";
     }
 
-    @GetMapping(value = "/get-all-products")
-    public ResponseEntity<CommonResponse> getAllProducts() {
-        try  {
-            return ResponseEntity.ok(new CommonResponse(new ArrayList<>(customerService.getAllProducts())));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
-                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
-        }
-    }
 
     @GetMapping(value = "/place-order")
     public ResponseEntity<CommonResponse> placeOrder() throws Exception {
