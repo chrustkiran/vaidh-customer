@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    @Query(value = "SELECT * FROM product WHERE productStatus = 'ACTIVE'", nativeQuery = true)
+    @Query(value = "SELECT * FROM product WHERE product_status = 'ACTIVE'", nativeQuery = true)
     List<Product> findAllActiveProducts();
 
     @Query(value = "SELECT * FROM product WHERE name LIKE %:name%", nativeQuery = true)
