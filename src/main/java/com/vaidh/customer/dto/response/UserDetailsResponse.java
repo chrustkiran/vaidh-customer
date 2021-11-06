@@ -9,6 +9,8 @@ public class UserDetailsResponse implements CommonResults {
     private String userName;
     private String name;
     private String phoneNumber;
+    private String email;
+    private String address;
     private HashMap<String, List<String>> info = new HashMap<>();
 
     public UserDetailsResponse(String userName, String name, String phoneNumber) {
@@ -39,6 +41,22 @@ public class UserDetailsResponse implements CommonResults {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public HashMap<String, List<String>> getInfo() {

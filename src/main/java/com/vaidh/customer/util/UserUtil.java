@@ -29,6 +29,8 @@ public class UserUtil {
     public static UserDetailsResponse convertToUserDetails(UserEntity userEntity) {
         if (userEntity != null) {
             UserDetailsResponse user = new UserDetailsResponse(userEntity.getUsername(), userEntity.getName(), userEntity.getPhoneNumber());
+            user.setEmail(userEntity.getEmailAddress());
+            user.setAddress(userEntity.getAddress());
             user.setInfo("ProductUnit", convertObjectToString(ProductUnit.values()));
             user.setInfo("ProductStatus", convertObjectToString(ProductStatus.values()));
             user.setInfo("ProductCategory", convertObjectToString(ProductCategory.values()));
