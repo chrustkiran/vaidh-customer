@@ -1,11 +1,16 @@
 package com.vaidh.customer.dto;
 
+import com.vaidh.customer.model.enums.ProductCategory;
+import com.vaidh.customer.model.enums.ProductUnit;
+
 public class ProductDTO {
     private String name;
-    private String productCategory;
-    private String productUnit;
+    private ProductCategory productCategory;
+    private ProductUnit productUnit;
     private Double price;
     private String imageURL;
+    private String companyName;
+    private String description;
 
     public String getName() {
         return name;
@@ -15,19 +20,19 @@ public class ProductDTO {
         this.name = name;
     }
 
-    public String getProductCategory() {
+    public ProductCategory getProductCategory() {
         return productCategory;
     }
 
-    public void setProductCategory(String productCategory) {
+    public void setProductCategory(ProductCategory productCategory) {
         this.productCategory = productCategory;
     }
 
-    public String getProductUnit() {
+    public ProductUnit getProductUnit() {
         return productUnit;
     }
 
-    public void setProductUnit(String productUnit) {
+    public void setProductUnit(ProductUnit productUnit) {
         this.productUnit = productUnit;
     }
 
@@ -45,5 +50,21 @@ public class ProductDTO {
 
     public void setImageURL(String imageURL) {
         this.imageURL = imageURL;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

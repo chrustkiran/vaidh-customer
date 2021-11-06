@@ -16,4 +16,5 @@ public interface InventoryService {
     CommonMessageResponse modifyOrder(ModifyOrderRequest modifyOrderRequest);
     CommonMessageResponse modifyProduct(ModifyProductRequest modifyProductRequest) throws ModuleException;
     List<Product> getAllProducts();
+    boolean addProducts(List<ProductDTO> products) throws ModuleException;
 }

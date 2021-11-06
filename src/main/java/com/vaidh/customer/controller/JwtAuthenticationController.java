@@ -95,14 +95,4 @@ public class JwtAuthenticationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("ERROR");
         }
     }
-
-    @GetMapping("/get-user-details")
-    public ResponseEntity<CommonResponse> getUserDetails() {
-        try {
-            return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.getUserDetails())));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
-                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
-        }
-    }
 }

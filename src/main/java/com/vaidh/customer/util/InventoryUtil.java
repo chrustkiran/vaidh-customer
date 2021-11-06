@@ -16,12 +16,13 @@ public class InventoryUtil {
     public static Product convertToProduct(ProductDTO productDTO) {
         if (productDTO != null) {
             Product product = new Product();
-            product.setName(productDTO.getName());
+            product.setName(productDTO.getName().toLowerCase());
             product.setPrice(productDTO.getPrice());
             product.setImageUrl(productDTO.getImageURL());
-            product.setProductCategory(getCategory(productDTO.getProductCategory()));
-            product.setProductUnit(getProductUnit(productDTO.getProductUnit()));
-
+            product.setProductCategory(productDTO.getProductCategory());
+            product.setProductUnit(productDTO.getProductUnit());
+            product.setCompanyName(productDTO.getCompanyName().toLowerCase());
+            product.setDescription(productDTO.getDescription().toLowerCase());
             return product;
         }
         return null;
@@ -45,7 +46,7 @@ public class InventoryUtil {
             productCategory = productCategory.toUpperCase();
             switch (productCategory) {
                 case "SYRUP":
-                    return ProductCategory.SYRUP;
+                    return ProductCategory.LIQUID;
                 case "TABLET":
                     return ProductCategory.TABLET;
             }

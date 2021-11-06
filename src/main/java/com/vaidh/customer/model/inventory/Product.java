@@ -25,6 +25,10 @@ public class Product implements CommonResults {
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
+    private String companyName;
+
+    private String description;
+
     public Product() {}
 
     public Product(Long productId) {
@@ -77,5 +81,21 @@ public class Product implements CommonResults {
 
     public void setProductStatus(ProductStatus productStatus) {
         this.productStatus = productStatus;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

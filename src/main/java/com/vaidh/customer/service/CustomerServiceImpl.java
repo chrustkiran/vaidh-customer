@@ -125,7 +125,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<Product> getProductByName(String name) {
-        return productRepository.findProductsByName(name);
+        return productRepository.findProductsByName(name.toLowerCase());
     }
 
     private void deActivateCurrentFreshCart(FreshCart freshCart) {

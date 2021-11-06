@@ -3,7 +3,9 @@ package com.vaidh.customer.controller;
 import com.vaidh.customer.dto.*;
 import com.vaidh.customer.dto.request.ModifyOrderRequest;
 import com.vaidh.customer.dto.request.ModifyProductRequest;
+import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.exception.ModuleException;
+import com.vaidh.customer.service.AuthenticationService;
 import com.vaidh.customer.service.InventoryService;
 import com.vaidh.customer.service.InventoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 //shop's end point
 @RestController
@@ -23,13 +26,34 @@ public class AdminController {
     @Autowired
     InventoryService inventoryService;
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     @PostMapping("/add-product")
     public ResponseEntity<CommonResponse> addProduct(@RequestBody ProductDTO product) {
         if (product != null) {
             //validate product
             try {
                 if (inventoryService.addProduct(product)) {
-                    return ResponseEntity.ok(new CommonResponse());
+                    return ResponseEntity.ok(new CommonResponse(Arrays.asList(new CommonMessageResponse("Added"))));
+                }
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CommonResponse(true,
+                        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Adding failed")));
+            } catch (ModuleException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CommonResponse(true,
+                        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResponse(true, new ErrorResponse(HttpStatus.BAD_REQUEST, "Bad Request")));
+    }
+
+    @PostMapping("/add-products")
+    public ResponseEntity<CommonResponse> addProduct(@RequestBody List<ProductDTO> products) {
+        if (products != null && !products.isEmpty()) {
+            //validate product
+            try {
+                if (inventoryService.addProducts(products)) {
+                    return ResponseEntity.ok(new CommonResponse(Arrays.asList(new CommonMessageResponse("Added"))));
                 }
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CommonResponse(true,
                         new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Adding failed")));
@@ -90,6 +114,16 @@ public class AdminController {
     public ResponseEntity<CommonResponse> getAllProducts() {
         try  {
             return ResponseEntity.ok(new CommonResponse(new ArrayList<>(inventoryService.getAllProducts())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
+        }
+    }
+
+    @GetMapping("/get-user-details")
+    public ResponseEntity<CommonResponse> getUserDetails() {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.getUserDetails())));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
                     CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));

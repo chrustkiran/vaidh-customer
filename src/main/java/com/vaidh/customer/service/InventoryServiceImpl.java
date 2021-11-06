@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED;
 import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_PLACED_ORDER;
@@ -35,7 +36,6 @@ public class InventoryServiceImpl implements InventoryService{
                 Product product = InventoryUtil.convertToProduct(productDTO);
                 product.setProductStatus(ProductStatus.ACTIVE);
                 productRepository.save(product);
-                List<CommonResults> commonResults = new ArrayList<>();
                 return true;
             } catch (Exception e) {
                 throw new ModuleException("Product Adding Failed");
@@ -102,5 +102,24 @@ public class InventoryServiceImpl implements InventoryService{
     @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
+    }
+
+    @Override
+    public boolean addProducts(List<ProductDTO> products) throws ModuleException {
+        if (products != null & !products.isEmpty()) {
+            try {
+                List<Product> productEntities = products.stream().map(product -> {
+                            Product proEntity = InventoryUtil.convertToProduct(product);
+                            proEntity.setProductStatus(ProductStatus.ACTIVE);
+                            return proEntity;
+                        }
+                ).collect(Collectors.toList());
+                productRepository.saveAll(productEntities);
+                return true;
+            } catch (Exception ex) {
+                throw new ModuleException("Product Adding Failed");
+            }
+        }
+        return false;
     }
 }

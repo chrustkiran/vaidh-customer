@@ -86,10 +86,10 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         LOGGER.info("File " + multipartFile.getOriginalFilename() + " uploaded to bucket " + " as " + name);
 
+        String c = FirebaseAuth.getInstance().createCustomToken("some-uid");
         LOGGER.info(
-                "genetated auth token " + FirebaseAuth.getInstance().createCustomToken(UUID.randomUUID().toString())
+                "genetated auth token " + c
         );
-       
         return String.format(fireStorageUrl, name);
     }
 
