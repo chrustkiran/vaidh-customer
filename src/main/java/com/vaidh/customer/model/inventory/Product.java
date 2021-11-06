@@ -98,4 +98,8 @@ public class Product implements CommonResults {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Long getProductId() {
+        return productId;
+    }
 }
