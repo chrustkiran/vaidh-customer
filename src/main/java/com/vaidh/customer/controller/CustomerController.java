@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 //Customer's endpoint
 @RestController
@@ -67,8 +68,8 @@ public class CustomerController {
                 new CommonResponse(true, new ErrorResponse(HttpStatus.BAD_REQUEST, new ModuleException("Bad Strings"))));
     }
 
-    @GetMapping(value = "/add-item-to-cart")
-    public ResponseEntity<CommonResponse> addItemToCart(@RequestParam Long productId, @RequestParam int quantity) {
+    @PostMapping(value = "/add-item-to-cart")
+    public ResponseEntity<CommonResponse> addItemToCart(@RequestBody Long productId, @RequestBody int quantity) {
         try {
             return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addItemToCart(productId, quantity))));
         } catch (ModuleException e) {
@@ -76,6 +77,17 @@ public class CustomerController {
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
         }
     }
+
+    @PostMapping(value = "/add-items-to-cart")
+    public ResponseEntity<CommonResponse> addItemsToCart(@RequestBody Map<Long, Integer> items) {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addItemToCart(items))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
 
     @PostMapping(value = "/add-prescription-to-cart")
     public ResponseEntity<CommonResponse> addPrescriptionToCart(@RequestParam("file") MultipartFile file) {

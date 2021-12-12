@@ -5,14 +5,12 @@ import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ItemAddedResponse;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
+import com.vaidh.customer.dto.response.HistoryResponse;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.message.OrderCreateMessage;
 import com.vaidh.customer.model.customer.UserEntity;
 import com.vaidh.customer.model.enums.FreshCartStatus;
-import com.vaidh.customer.model.inventory.FreshCart;
-import com.vaidh.customer.model.inventory.FreshCartItem;
-import com.vaidh.customer.model.inventory.Order;
-import com.vaidh.customer.model.inventory.Product;
+import com.vaidh.customer.model.inventory.*;
 import com.vaidh.customer.repository.*;
 import com.vaidh.customer.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +44,9 @@ public class CustomerServiceImpl implements CustomerService {
     OrderRepository orderRepository;
 
     @Autowired
+    ModifiedCartItemRepository modifiedCartItemRepository;
+
+    @Autowired
     FireBaseStorageServiceImpl fireBaseStorageService;
 
     @Autowired
@@ -60,6 +61,19 @@ public class CustomerServiceImpl implements CustomerService {
     public CommonMessageResponse addItemToCart(Long productId, Integer quantity) throws ModuleException {
         try {
             freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), productId, quantity));
+            return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
+        } catch (Exception e) {
+            throw new ModuleException(e.getMessage());
+        }
+    }
+
+    @Override
+    public CommonMessageResponse addItemToCart(Map<Long, Integer> items) throws ModuleException {
+        try {
+            List<FreshCartItem> freshCartItems = Optional.ofNullable(items.entrySet()).orElse(new HashSet<>()).
+                    stream().map(item -> new FreshCartItem(getFreshCartId(), item.getKey(), item.getValue()))
+                    .collect(Collectors.toList());
+            freshCartItemRepository.saveAll(freshCartItems);
             return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
@@ -100,7 +114,28 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CommonResults> getHistories() {
-        return null;
+        List<Order> orders = orderRepository.findOrdersByUser(authenticationService.getCurrentUserName());
+        List<CommonResults> histories = orders.stream().map(order -> {
+            List<ModifiedCartItem> modifiedCartItems = modifiedCartItemRepository.
+                    findAllModifiedCartItemsByFreshCartId(order.getFreshCartReferenceId());
+            List<Product> products = new ArrayList<>();
+            if (modifiedCartItems != null && !modifiedCartItems.isEmpty()) {
+                modifiedCartItems.stream().map(modifiedCartItem -> {
+                    Product product = new Product();
+                    product.setName(modifiedCartItem.getProduct().getName());
+                    product.setCompanyName(modifiedCartItem.getProduct().getCompanyName());
+                    product.setDescription(modifiedCartItem.getProduct().getDescription());
+                    product.setPrice(modifiedCartItem.getCurrentPrice());
+
+                    products.add(product);
+                    return null;
+                });
+            }
+            return new HistoryResponse(order.getOrderCreatedTime(), order.getOrderModifiedTime(), products,
+                    order.getOrderStatus(), order.getPayment().getModifiedAmount(), order.getPayment().
+                    getOfferAmount(), order.getPayment().getNetAmount());
+        }).collect(Collectors.toList());
+        return histories;
     }
 
     @Override

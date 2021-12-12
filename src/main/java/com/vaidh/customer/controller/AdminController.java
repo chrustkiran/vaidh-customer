@@ -129,4 +129,13 @@ public class AdminController {
                     CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
         }
     }
+    @GetMapping("/get-user-details-by-id")
+    public ResponseEntity<CommonResponse> getUserDetails(String username) {
+        try{
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.getUserDetails(username))));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
+        }
+    }
 }

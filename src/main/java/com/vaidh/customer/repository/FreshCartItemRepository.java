@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface FreshCartItemRepository extends JpaRepository<FreshCartItem, Long> {
-    @Query(value = "DELETE FROM fresh_cart_item WHERE productId = ?1 ", nativeQuery = true)
+    @Query(value = "DELETE FROM fresh_cart_item WHERE product_id = ?1 ", nativeQuery = true)
     boolean deleteAddedItemFromCart(Long productId);
 
     List<FreshCartItem> findByFreshCartReferenceId(String freshCartReferenceId);

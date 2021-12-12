@@ -25,6 +25,8 @@ public class ModifiedCartItem {
     @Enumerated(EnumType.STRING)
     private ModifiedType modifiedType;
 
+    private double currentPrice;
+
     public String getFreshCartReferenceId() {
         return freshCartReferenceId;
     }
@@ -55,5 +57,13 @@ public class ModifiedCartItem {
 
     public void setModifiedType(ModifiedType modifiedType) {
         this.modifiedType = modifiedType;
+    }
+
+    public double getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(double currentPrice) {
+        this.currentPrice = currentPrice;
     }
 }

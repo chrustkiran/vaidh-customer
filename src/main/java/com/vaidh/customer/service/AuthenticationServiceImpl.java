@@ -163,4 +163,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         throw new Exception("Something went wrong");
     }
 
+    @Override
+    public UserDetailsResponse getUserDetails(String username) throws Exception {
+        Optional<UserEntity> userEntityOptional = this.userRepository.findByUsername(username);
+        if (userEntityOptional.isPresent()) {
+            return UserUtil.convertToUserDetails(userEntityOptional.get());
+        }
+        throw new Exception("Something went wrong");
+    }
+
+
 }

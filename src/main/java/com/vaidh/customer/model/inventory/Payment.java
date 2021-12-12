@@ -1,5 +1,7 @@
 package com.vaidh.customer.model.inventory;
 
+import com.vaidh.customer.model.enums.PaymentMethod;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,7 +12,8 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long paymentId;
 
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
     private Double totalAmount;
 
@@ -28,11 +31,11 @@ public class Payment {
         this.paymentId = paymentId;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
@@ -66,5 +69,9 @@ public class Payment {
 
     public void setNetAmount(Double netAmount) {
         this.netAmount = netAmount;
+    }
+
+    public Payment() {
+        this.paymentMethod = PaymentMethod.CASH;
     }
 }

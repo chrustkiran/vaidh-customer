@@ -24,4 +24,5 @@ public interface AuthenticationService {
     CommonMessageResponse modifyPassword(ModifyPasswordRequest modifyPasswordRequest) throws ModuleException;
     String refreshToken() throws Exception;
     UserDetailsResponse getUserDetails() throws Exception;
+    UserDetailsResponse getUserDetails(String username) throws Exception;
 }

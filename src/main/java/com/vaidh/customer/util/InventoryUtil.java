@@ -11,6 +11,7 @@ import com.vaidh.customer.model.inventory.Product;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class InventoryUtil {
     public static Product convertToProduct(ProductDTO productDTO) {
@@ -54,7 +55,7 @@ public class InventoryUtil {
         return ProductCategory.UNKNOWN;
     }
 
-    public static List<ModifiedCartItem> getModifiedCardItems(ModifyOrderRequest modifyOrderRequest) {
+    public static List<ModifiedCartItem> getModifiedCardItems(ModifyOrderRequest modifyOrderRequest, Map<Long, Double> productPriceByProductId) {
         List<ModifiedCartItem> modifiedCartItems = new ArrayList<>();
         if (modifyOrderRequest != null && !modifyOrderRequest.getProducts().isEmpty()) {
             for (ModifyProductStatus product : modifyOrderRequest.getProducts()) {
@@ -63,6 +64,7 @@ public class InventoryUtil {
                 modifiedCartItem.setCreatedTime(modifyOrderRequest.getModifiedTime());
                 modifiedCartItem.setFreshCartReferenceId(modifyOrderRequest.getReferenceCartId());
                 modifiedCartItem.setProduct(new Product(product.getProductId()));
+                modifiedCartItem.setCurrentPrice(productPriceByProductId.get(product.getProductId()));
                 modifiedCartItem.setModifiedType(getModifiedType(product.getStatus()));
 
                 modifiedCartItems.add(modifiedCartItem);
