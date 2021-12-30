@@ -9,9 +9,9 @@ services:
     #network_mode: host
     environment:
       - PSQL_DB_SERVER=host.docker.internal
-      - PSQL_DB_NAME=vaidh
-      - PSQL_DB_USERNAME=postgres
-      - PSQL_DB_PW=123
+      - PSQL_DB_NAME=vaidhdb
+      - PSQL_DB_USERNAME=vaidh
+      - PSQL_DB_PW=Vaidh123
       - JWT_SECRET=abcd123abcvaidh
       - FIREBASE_URL=https://vaidh-d7457-default-rtdb.firebaseio.com
       - VAIDH_MAIL_PW=Vaidh123
