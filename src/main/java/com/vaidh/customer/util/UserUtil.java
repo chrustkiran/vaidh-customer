@@ -49,4 +49,8 @@ public class UserUtil {
         }
         return null;
     }
+
+    public static boolean validatePassword(String password) {
+        return password != null  && !password.isEmpty() && password.length() >= 8;
+    }
 }

@@ -1,24 +1,26 @@
 package com.vaidh.customer.dto.request;
 
 public class ModifyPasswordRequest {
-    private String emailAddress;
-    private String secretCode;
+    private String username;
+    private String currentPassword;
     private String newPassword;
+    private String phoneNumber;
+    private String code;
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getSecretCode() {
-        return secretCode;
+    public String getCurrentPassword() {
+        return currentPassword;
     }
 
-    public void setSecretCode(String secretCode) {
-        this.secretCode = secretCode;
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
     }
 
     public String getNewPassword() {
@@ -29,7 +31,27 @@ public class ModifyPasswordRequest {
         this.newPassword = newPassword;
     }
 
-    public boolean isNonEmpty() {
-        return !newPassword.isEmpty() && !secretCode.isEmpty() && !emailAddress.isEmpty();
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public boolean isNonEmpty() {
+        return newPassword != null && !newPassword.isEmpty() &&
+                ((currentPassword != null && !currentPassword.isEmpty()) || (code != null && !code.isEmpty()))
+                && (username != null && !username.isEmpty() || phoneNumber != null && !phoneNumber.isEmpty());
+    }
+
+
 }

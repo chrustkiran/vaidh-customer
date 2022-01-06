@@ -1,6 +1,6 @@
 version: '3'
 services:
-  myspringapp:
+  my-vaidh-customer:
     image: my-vaidh-customer
     build: .
     ports:

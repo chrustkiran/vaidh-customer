@@ -19,7 +19,7 @@ public interface AuthenticationService {
     JwtResponse createAuthenticationToken(JwtLoginRequest jwtLoginRequest) throws Exception;
     JwtResponse createUser(JwtRegisterRequest authenticationRequest) throws AlreadyUserExistException, ModuleException, Exception;
     String getCurrentUserName();
-    CommonMessageResponse forgetPassword(String emailAddress);
+    CommonMessageResponse forgetPassword(String emailAddress) throws ModuleException;
     ConfirmCodeResponse confirmForgetPasswordCode(String emailAddress, String code) throws ModuleException;
     CommonMessageResponse modifyPassword(ModifyPasswordRequest modifyPasswordRequest) throws ModuleException;
     String refreshToken() throws Exception;

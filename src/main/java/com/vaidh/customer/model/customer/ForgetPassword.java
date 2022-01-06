@@ -13,7 +13,7 @@ public class ForgetPassword {
     private Long id;
 
     @Column(unique = true)
-    private String emailAddress;
+    private String username;
     private String code;
 
     @Enumerated(EnumType.STRING)
@@ -21,18 +21,20 @@ public class ForgetPassword {
 
     private String confirmedCode;
 
-    public ForgetPassword(String emailAddress, String code) {
-        this.emailAddress = emailAddress;
+    public ForgetPassword() {}
+
+    public ForgetPassword(String username, String code) {
+        this.username = username;
         this.code = code;
         this.status = ForgetPasswordCodeStatus.NEW;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getCode() {

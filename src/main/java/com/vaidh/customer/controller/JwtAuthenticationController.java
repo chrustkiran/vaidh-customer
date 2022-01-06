@@ -30,7 +30,8 @@ public class JwtAuthenticationController {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Invalid credintials");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UNKNOWN");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
         }
     }
 
@@ -41,15 +42,16 @@ public class JwtAuthenticationController {
         } catch (AlreadyUserExistException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("This user already exist");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UNKNOWN");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                    CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
         }
     }
 
     @GetMapping("/forget-password")
-    public ResponseEntity<CommonResponse> forgetPassword(@RequestParam String emailAddress) {
-        if (!emailAddress.isEmpty()) {
+    public ResponseEntity<CommonResponse> forgetPassword(@RequestParam String username) {
+        if (!username.isEmpty()) {
             try {
-                return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.forgetPassword(emailAddress))));
+                return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.forgetPassword(username))));
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
                         CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
@@ -60,10 +62,10 @@ public class JwtAuthenticationController {
     }
 
     @GetMapping("/confirm-forget-password-code")
-    public ResponseEntity<CommonResponse> confirmForgetPasswordCode(@RequestParam String emailAddress, @RequestParam String code) {
-        if (!emailAddress.isEmpty() && !code.isEmpty()) {
+    public ResponseEntity<CommonResponse> confirmForgetPasswordCode(@RequestParam String username, @RequestParam String code) {
+        if (!username.isEmpty() && !code.isEmpty()) {
             try {
-                return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.confirmForgetPasswordCode(emailAddress, code))));
+                return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.confirmForgetPasswordCode(username, code))));
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
                         CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
@@ -74,13 +76,20 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping("/modify-password")
-    public ResponseEntity<CommonResponse> modifyPassword(@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
-        if (modifyPasswordRequest != null && modifyPasswordRequest.isNonEmpty()) {
-            try {
-                return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.modifyPassword(modifyPasswordRequest))));
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
-                        CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
+    public ResponseEntity<CommonResponse> modifyPassword(@RequestBody ModifyPasswordRequest modifyPasswordRequest,
+                                                         @RequestParam(required = false) String confirmedCode, @RequestParam(required = false) String username) {
+        if (modifyPasswordRequest != null) {
+            if (confirmedCode != null && !confirmedCode.isEmpty() && username != null && !username.isEmpty()) {
+                modifyPasswordRequest.setUsername(username);
+                modifyPasswordRequest.setCode(confirmedCode);
+            }
+            if (modifyPasswordRequest.isNonEmpty()) {
+                try {
+                    return ResponseEntity.ok(new CommonResponse(Arrays.asList(authenticationService.modifyPassword(modifyPasswordRequest))));
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
+                            CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
+                }
             }
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new
