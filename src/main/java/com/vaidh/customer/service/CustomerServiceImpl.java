@@ -14,10 +14,12 @@ import com.vaidh.customer.model.inventory.*;
 import com.vaidh.customer.repository.*;
 import com.vaidh.customer.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED;
@@ -25,6 +27,7 @@ import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED
 @Service
 public class CustomerServiceImpl implements CustomerService {
     private final String FRESH_CART_REF_ID_JOINER = "_";
+    private Logger logger = Logger.getLogger(String.valueOf(CustomerServiceImpl.class));
     @Autowired
     ProductRepository productRepository;
 
@@ -70,8 +73,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CommonMessageResponse addItemToCart(Map<Long, Integer> items) throws ModuleException {
         try {
+            String freshCartId = getFreshCartId();
             List<FreshCartItem> freshCartItems = Optional.ofNullable(items.entrySet()).orElse(new HashSet<>()).
-                    stream().map(item -> new FreshCartItem(getFreshCartId(), item.getKey(), item.getValue()))
+                    stream().map(item -> new FreshCartItem(freshCartId, item.getKey(), item.getValue()))
                     .collect(Collectors.toList());
             freshCartItemRepository.saveAll(freshCartItems);
             return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
@@ -92,11 +96,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CommonMessageResponse placeOrder() {
+    public CommonMessageResponse placeOrder() throws ModuleException {
         FreshCart currentFreshCart = freshCartRepository.findByUsername(authenticationService.getCurrentUserName()).get();
+        if (currentFreshCart == null || currentFreshCart.getStatus() != FreshCartStatus.ACTIVE) {
+            throw new ModuleException("No Active Cart");
+        }
         //save new order entry to db
-        orderRepository.save(new Order(currentFreshCart.getCartReferenceId(), authenticationService.getCurrentUserName(),
-                new Date()));
+        try {
+            orderRepository.save(new Order(currentFreshCart.getCartReferenceId(), authenticationService.getCurrentUserName(),
+                    new Date()));
+        } catch (DataIntegrityViolationException e) {logger.warning("Order already exist with fresh cart id " + currentFreshCart.getCartReferenceId());}
         //active cart -> deactive
         deActivateCurrentFreshCart(currentFreshCart);
         //fetching cart item details
@@ -105,9 +114,10 @@ public class CustomerServiceImpl implements CustomerService {
         //sending messaging to firebase
         fireBaseStorageService.saveTestDate(currentFreshCart.getCartReferenceId(), new OrderCreateMessage(
                 authenticationService.getCurrentUserName(), freshCartItems.stream().filter(freshCartItem ->
-                freshCartItem.getProductId() != null).collect(Collectors.toMap(FreshCartItem::getProductId,
+                freshCartItem.getProductId() != null).collect(Collectors.toMap(freshCartItem -> freshCartItem.getProductId().toString(),
                 FreshCartItem::getQuantity, (x,y)-> x))
-        , freshCartItems.stream().filter(freshCartItem -> !freshCartItem.getPrescribedImage().isEmpty()).map(freshCartItem ->
+        , freshCartItems.stream().filter(freshCartItem -> freshCartItem.getPrescribedImage() != null &&
+                !freshCartItem.getPrescribedImage().isEmpty()).map(freshCartItem ->
                 freshCartItem.getPrescribedImage()).collect(Collectors.toList())));
         return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_PLACED_ORDER + " :: " + currentFreshCart.getCartReferenceId());
     }
@@ -183,8 +193,10 @@ public class CustomerServiceImpl implements CustomerService {
                 return freshCart.get().getCartReferenceId();
             } else {
                 String freshCartRefId = username + FRESH_CART_REF_ID_JOINER + System.currentTimeMillis();
-                freshCartRepository.save(new FreshCart(freshCart.get().getFreshCartId(), FreshCartStatus.ACTIVE,
-                        freshCartRefId));
+                FreshCart existFreshCart = freshCart.get();
+                existFreshCart.setStatus(FreshCartStatus.ACTIVE);
+                existFreshCart.setCartReferenceId(freshCartRefId);
+                freshCartRepository.save(existFreshCart);
                 return freshCartRefId;
             }
         }

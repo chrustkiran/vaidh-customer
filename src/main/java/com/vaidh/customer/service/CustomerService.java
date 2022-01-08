@@ -22,7 +22,7 @@ public interface CustomerService {
 
     CommonMessageResponse addPrescriptionToCart(MultipartFile file) throws ModuleException;
 
-    CommonMessageResponse placeOrder();
+    CommonMessageResponse placeOrder() throws ModuleException;
 
     List<CommonResults> getHistories();
 

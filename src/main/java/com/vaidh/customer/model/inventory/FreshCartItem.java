@@ -18,6 +18,8 @@ public class FreshCartItem {
 
     private Integer quantity;
 
+    public FreshCartItem() {}
+
     public FreshCartItem(String freshCartReferenceId, Long productId, Integer quantity) {
         this.freshCartReferenceId = freshCartReferenceId;
         this.productId = productId;

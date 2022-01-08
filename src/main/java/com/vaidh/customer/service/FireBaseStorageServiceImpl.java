@@ -14,8 +14,8 @@ public class FireBaseStorageServiceImpl implements FireBaseStorageService {
 
     @Override
     public void saveTestDate(String key, FireBaseMessage message) {
-        DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference("/public");
-        firebaseDatabase.child("order").setValue(message, new DatabaseReference.CompletionListener() {
+        DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
+        firebaseDatabase.child("orders").child(key).setValue(message, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError error, DatabaseReference ref) {
                logger.info("completed adding data :: time :: " + message.getCreatedTime() + " :: by :: "

@@ -26,6 +26,8 @@ public class FreshCart {
     //username_currentmillisecond
     private String cartReferenceId;
 
+    public FreshCart() {}
+
     public FreshCart(Long freshCartId, FreshCartStatus status, String cartReferenceId) {
         this.freshCartId = freshCartId;
         this.status = status;
