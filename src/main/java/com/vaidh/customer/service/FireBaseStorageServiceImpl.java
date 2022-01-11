@@ -13,13 +13,24 @@ public class FireBaseStorageServiceImpl implements FireBaseStorageService {
     Logger logger = Logger.getLogger("FireBaseStorageServiceImpl");
 
     @Override
-    public void saveTestDate(String key, FireBaseMessage message) {
+    public void sendMessage(String key, FireBaseMessage message) {
         DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
-        firebaseDatabase.child("orders").child(key).setValue(message, new DatabaseReference.CompletionListener() {
+        firebaseDatabase.child(key).setValue(message, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError error, DatabaseReference ref) {
-               logger.info("completed adding data :: time :: " + message.getCreatedTime() + " :: by :: "
-                       + message.getUsername());
+               logger.info("completed adding data :: time :: " + message.getCreatedTime() + " :: key :: "
+                       + key);
+            }
+        });
+    }
+
+    @Override
+    public void sendMessage(String key, String message) {
+        DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
+        firebaseDatabase.child(key).setValue(message, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError error, DatabaseReference ref) {
+                logger.info("completed adding data :: message :: " + message);
             }
         });
     }

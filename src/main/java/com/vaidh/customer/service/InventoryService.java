@@ -9,6 +9,7 @@ import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.model.inventory.Product;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InventoryService {
     boolean addProduct(ProductDTO product) throws ModuleException;
@@ -17,4 +18,7 @@ public interface InventoryService {
     CommonMessageResponse modifyProduct(ModifyProductRequest modifyProductRequest) throws ModuleException;
     List<Product> getAllProducts();
     boolean addProducts(List<ProductDTO> products) throws ModuleException;
+    CommonMessageResponse addItemToCart(Long productId, Integer quantity, String freshCartId) throws ModuleException;
+    CommonMessageResponse addItemToCartAndPlaceOrder(Map<Long, Integer> items, String freshCartId) throws ModuleException;
+    CommonMessageResponse cancelOrder(String freshCartId, String note) throws ModuleException;
 }

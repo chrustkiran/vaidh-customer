@@ -2,6 +2,7 @@ package com.vaidh.customer.util;
 
 import com.vaidh.customer.dto.request.JwtRegisterRequest;
 import com.vaidh.customer.dto.response.UserDetailsResponse;
+import com.vaidh.customer.message.UserMessage;
 import com.vaidh.customer.model.customer.UserEntity;
 import com.vaidh.customer.model.enums.*;
 
@@ -52,5 +53,13 @@ public class UserUtil {
 
     public static boolean validatePassword(String password) {
         return password != null  && !password.isEmpty() && password.length() >= 8;
+    }
+
+    public static UserMessage getUserMessage(UserEntity userEntity) {
+        if (userEntity != null) {
+            return new UserMessage(userEntity.getUsername(), userEntity.getAddress(), userEntity.getName(),
+                    userEntity.getPhoneNumber(), userEntity.getEmailAddress());
+        }
+        return null;
     }
 }

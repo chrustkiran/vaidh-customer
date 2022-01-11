@@ -19,6 +19,11 @@ public class Order {
     @NotNull
     private String freshCartReferenceId;
 
+    @NotNull
+    private String prescribedImageUrl;
+
+    private String failureNote;
+
     @OneToOne
     @JoinColumn(name="modified_cart_item_id")
     private ModifiedCartItem modifiedCartItemId;
@@ -32,18 +37,20 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "deliveryId")
     private Delivery delivery;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "paymentId")
     private Payment payment;
 
-    public Order(String freshCartReferenceId, String orderPlacedBy, Date orderCreatedTime) {
+    public Order() {}
+    public Order(String freshCartReferenceId, String orderPlacedBy, Date orderCreatedTime, String prescribedImageUrl) {
         this.freshCartReferenceId = freshCartReferenceId;
         this.orderPlacedBy = orderPlacedBy;
         this.orderCreatedTime = orderCreatedTime;
+        this.prescribedImageUrl = prescribedImageUrl;
         this.orderStatus = OrderStatus.CREATED;
     }
 
@@ -117,5 +124,21 @@ public class Order {
 
     public void setPayment(Payment payment) {
         this.payment = payment;
+    }
+
+    public String getPrescribedImageUrl() {
+        return prescribedImageUrl;
+    }
+
+    public void setPrescribedImageUrl(String prescribedImageUrl) {
+        this.prescribedImageUrl = prescribedImageUrl;
+    }
+
+    public String getFailureNote() {
+        return failureNote;
+    }
+
+    public void setFailureNote(String failureNote) {
+        this.failureNote = failureNote;
     }
 }

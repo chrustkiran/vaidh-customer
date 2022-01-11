@@ -1,13 +1,14 @@
 package com.vaidh.customer.controller;
 
 import com.vaidh.customer.dto.*;
+import com.vaidh.customer.dto.request.AddItemsRequest;
+import com.vaidh.customer.dto.request.CancelOrderRequest;
 import com.vaidh.customer.dto.request.ModifyOrderRequest;
 import com.vaidh.customer.dto.request.ModifyProductRequest;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.service.AuthenticationService;
 import com.vaidh.customer.service.InventoryService;
-import com.vaidh.customer.service.InventoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -136,6 +137,37 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
                     CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
+        }
+    }
+
+    @PostMapping("/add-item-to-cart")
+    public ResponseEntity<CommonResponse> addItemToCart(@RequestBody Long productId, @RequestBody int quantity, @RequestBody String freshCartId) {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.addItemToCart(productId, quantity,
+                    freshCartId))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
+    @PostMapping("/add-items-to-cart")
+    public ResponseEntity<CommonResponse> addItemsToCart(@RequestBody AddItemsRequest addItemsRequest) {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.addItemToCartAndPlaceOrder(addItemsRequest.getItems(), addItemsRequest.getReferenceId()))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
+    @PostMapping("/cancel-order")
+    public ResponseEntity<CommonResponse> cancelOrder(@RequestBody CancelOrderRequest cancelOrderRequest) throws Exception {
+        try  {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.cancelOrder(cancelOrderRequest.getReferenceId(), cancelOrderRequest.getNote()))));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
         }
     }
 }

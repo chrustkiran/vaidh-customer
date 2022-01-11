@@ -18,12 +18,15 @@ public class FreshCartItem {
 
     private Integer quantity;
 
+    private Double price;
+
     public FreshCartItem() {}
 
-    public FreshCartItem(String freshCartReferenceId, Long productId, Integer quantity) {
+    public FreshCartItem(String freshCartReferenceId, Long productId, Integer quantity, Double price) {
         this.freshCartReferenceId = freshCartReferenceId;
         this.productId = productId;
         this.quantity = quantity;
+        this.price = price;
     }
 
     public FreshCartItem(String freshCartReferenceId, String prescribedImage) {
@@ -71,4 +74,9 @@ public class FreshCartItem {
     public void setPrescribedImage(String prescribedImage) {
         this.prescribedImage = prescribedImage;
     }
+
+    public Double getPrice() {
+        return price;
+    }
+
 }

@@ -1,33 +1,31 @@
 package com.vaidh.customer.message;
 
+import com.vaidh.customer.model.enums.OrderStatus;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class OrderCreateMessage extends FireBaseMessage {
-    private Map<String, Integer> itemWiseQuantity;
-    private List<String> images;
+    private String image;
+    private UserMessage user;
+    private OrderStatus status;
 
-    public OrderCreateMessage(String username, Map<String, Integer> itemWiseQuanity, List<String> images) {
-        super.setUsername(username);
-        super.setCreatedTime(new Date());
-        this.itemWiseQuantity = itemWiseQuanity;
-        this.images = images;
+    public OrderCreateMessage(String image, UserMessage user, OrderStatus status) {
+        this.image = image;
+        this.user = user;
+        this.status = status;
     }
 
-    public Map<String, Integer> getItemWiseQuantity() {
-        return itemWiseQuantity;
+    public String getImage() {
+        return image;
     }
 
-    public void setItemWiseQuantity(Map<String, Integer> itemWiseQuantity) {
-        this.itemWiseQuantity = itemWiseQuantity;
+    public UserMessage getUser() {
+        return user;
     }
 
-    public List<String> getImages() {
-        return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
+    public OrderStatus getStatus() {
+        return status;
     }
 }

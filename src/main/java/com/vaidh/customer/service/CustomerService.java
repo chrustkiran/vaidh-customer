@@ -3,6 +3,7 @@ package com.vaidh.customer.service;
 import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ItemAddedResponse;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
+import com.vaidh.customer.dto.response.AddPrescriptionResponse;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.dto.response.HistoryResponse;
 import com.vaidh.customer.exception.ModuleException;
@@ -16,11 +17,11 @@ import java.util.Map;
 public interface CustomerService {
     List<Product> getAllProducts();
 
-    CommonMessageResponse addItemToCart(Long productId, Integer quantity) throws ModuleException;
+    /*CommonMessageResponse addItemToCart(Long productId, Integer quantity) throws ModuleException;
 
-    CommonMessageResponse addItemToCart(Map<Long, Integer> items) throws ModuleException;
+    CommonMessageResponse addItemToCart(Map<Long, Integer> items) throws ModuleException;*/
 
-    CommonMessageResponse addPrescriptionToCart(MultipartFile file) throws ModuleException;
+    AddPrescriptionResponse addPrescriptionToCart(MultipartFile file) throws ModuleException;
 
     CommonMessageResponse placeOrder() throws ModuleException;
 
@@ -29,4 +30,6 @@ public interface CustomerService {
     CommonMessageResponse modifyUserRequest(ModifyUserRequest modifyUserRequest) throws ModuleException;
 
     List<Product> getProductByName(String name);
+
+    AddPrescriptionResponse getLastAddedOrder() throws ModuleException;
 }

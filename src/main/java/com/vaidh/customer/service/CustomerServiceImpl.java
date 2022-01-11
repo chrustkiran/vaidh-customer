@@ -2,19 +2,21 @@ package com.vaidh.customer.service;
 
 import com.vaidh.customer.constants.ResponseMessage;
 import com.vaidh.customer.dto.CommonResults;
-import com.vaidh.customer.dto.ItemAddedResponse;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
+import com.vaidh.customer.dto.response.AddPrescriptionResponse;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.dto.response.HistoryResponse;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.message.OrderCreateMessage;
+import com.vaidh.customer.message.UserMessage;
 import com.vaidh.customer.model.customer.UserEntity;
 import com.vaidh.customer.model.enums.FreshCartStatus;
+import com.vaidh.customer.model.enums.OrderStatus;
 import com.vaidh.customer.model.inventory.*;
 import com.vaidh.customer.repository.*;
 import com.vaidh.customer.util.StringUtil;
+import com.vaidh.customer.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,9 +35,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     FreshCartRepository freshCartRepository;
-
-    @Autowired
-    FreshCartItemRepository freshCartItemRepository;
 
     @Autowired
     FileStorageService fileStorageService;
@@ -60,11 +59,16 @@ public class CustomerServiceImpl implements CustomerService {
         return productRepository.findAllActiveProducts();
     }
 
-    @Override
+   /* @Override
     public CommonMessageResponse addItemToCart(Long productId, Integer quantity) throws ModuleException {
         try {
-            freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), productId, quantity));
-            return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
+            Optional<Product> product = productRepository.findById(productId);
+            if (product.isPresent()) {
+                freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), productId, quantity, product.get().getPrice()));
+                return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
+            } else {
+                throw new ModuleException("No product exists with id " + productId);
+            }
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
         }
@@ -74,30 +78,49 @@ public class CustomerServiceImpl implements CustomerService {
     public CommonMessageResponse addItemToCart(Map<Long, Integer> items) throws ModuleException {
         try {
             String freshCartId = getFreshCartId();
+            List<Product> products = productRepository.findAllById(items.keySet());
+            Map<Long, Double> productKeyWisePrice = products.stream().collect(Collectors.toMap(Product::getProductId,
+                    Product::getPrice, (x,y)->x));
             List<FreshCartItem> freshCartItems = Optional.ofNullable(items.entrySet()).orElse(new HashSet<>()).
-                    stream().map(item -> new FreshCartItem(freshCartId, item.getKey(), item.getValue()))
+                    stream().map(item -> new FreshCartItem(freshCartId, item.getKey(), item.getValue(),
+                    productKeyWisePrice.get(item.getKey())))
                     .collect(Collectors.toList());
             freshCartItemRepository.saveAll(freshCartItems);
             return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
         }
-    }
+    }*/
 
     @Override
-    public CommonMessageResponse addPrescriptionToCart(MultipartFile file) throws ModuleException {
+    public AddPrescriptionResponse addPrescriptionToCart(MultipartFile file) throws ModuleException {
         try {
             String url = fileStorageService.save(file);
-            freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), url));
-            return new CommonMessageResponse("Successfully added");
+            //freshCartItemRepository.save(new FreshCartItem(getFreshCartId(), url));
+            //create new order and sent cart reference to admin
+            String freshCartId = getFreshCartId();
+            Order order = new Order(freshCartId, authenticationService.getCurrentUserName(), new Date(), url);
+            orderRepository.save(order);
+
+            sendFirebaseCreateOrderMessage(freshCartId, url);
+            return new AddPrescriptionResponse(freshCartId);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
         }
     }
 
+    private void sendFirebaseCreateOrderMessage(String freshCartId, String imageUrl) {
+        Optional<UserEntity> user = userRepository.findByUsername(authenticationService.getCurrentUserName());
+        if (user.isPresent()) {
+            UserMessage userMessage = UserUtil.getUserMessage(user.get());
+            fireBaseStorageService.sendMessage("orders/"+freshCartId, new OrderCreateMessage(imageUrl, userMessage, OrderStatus.CREATED));
+        }
+    }
+
     @Override
     public CommonMessageResponse placeOrder() throws ModuleException {
-        FreshCart currentFreshCart = freshCartRepository.findByUsername(authenticationService.getCurrentUserName()).get();
+        return null;
+        /*FreshCart currentFreshCart = freshCartRepository.findByUsername(authenticationService.getCurrentUserName()).get();
         if (currentFreshCart == null || currentFreshCart.getStatus() != FreshCartStatus.ACTIVE) {
             throw new ModuleException("No Active Cart");
         }
@@ -119,7 +142,7 @@ public class CustomerServiceImpl implements CustomerService {
         , freshCartItems.stream().filter(freshCartItem -> freshCartItem.getPrescribedImage() != null &&
                 !freshCartItem.getPrescribedImage().isEmpty()).map(freshCartItem ->
                 freshCartItem.getPrescribedImage()).collect(Collectors.toList())));
-        return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_PLACED_ORDER + " :: " + currentFreshCart.getCartReferenceId());
+        return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_PLACED_ORDER + " :: " + currentFreshCart.getCartReferenceId());*/
     }
 
     @Override
@@ -173,6 +196,16 @@ public class CustomerServiceImpl implements CustomerService {
         return productRepository.findProductsByName(name.toLowerCase());
     }
 
+    @Override
+    public AddPrescriptionResponse getLastAddedOrder() throws ModuleException {
+        Optional<Order> orderEnt = orderRepository.findOrdersByUserAndStatus(authenticationService.
+                getCurrentUserName(), OrderStatus.CREATED.toString());
+        if (orderEnt.isPresent()) {
+            return new AddPrescriptionResponse(orderEnt.get().getFreshCartReferenceId());
+        }
+        throw new ModuleException("No order found");
+    }
+
     private void deActivateCurrentFreshCart(FreshCart freshCart) {
         freshCart.setStatus(FreshCartStatus.DE_ACTIVE);
         freshCartRepository.save(freshCart);
@@ -181,8 +214,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     private String getFreshCartId() {
         String username = authenticationService.getCurrentUserName();
-        Optional<FreshCart> freshCart = freshCartRepository.findByUsername(username);
-
+        return username + FRESH_CART_REF_ID_JOINER + System.currentTimeMillis();
+        /*Optional<FreshCart> freshCart = freshCartRepository.findByUsername(username);
         //check there is any shopping cart for this user
         if (!freshCart.isPresent()) {
             String freshCartReferenceId = username + FRESH_CART_REF_ID_JOINER + System.currentTimeMillis();
@@ -199,7 +232,7 @@ public class CustomerServiceImpl implements CustomerService {
                 freshCartRepository.save(existFreshCart);
                 return freshCartRefId;
             }
-        }
+        }*/
     }
 
 

@@ -4,7 +4,6 @@ import com.vaidh.customer.dto.CommonResponse;
 import com.vaidh.customer.dto.ErrorResponse;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
 import com.vaidh.customer.exception.ModuleException;
-import com.vaidh.customer.model.inventory.Product;
 import com.vaidh.customer.service.CustomerService;
 import com.vaidh.customer.service.FireBaseStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 //Customer's endpoint
 @RestController
@@ -34,7 +30,7 @@ public class CustomerController {
     }
 
 
-    @GetMapping(value = "/place-order")
+   /* @GetMapping(value = "/place-order")
     public ResponseEntity<CommonResponse> placeOrder() throws Exception {
         try  {
             return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.placeOrder())));
@@ -42,7 +38,7 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
         }
-    }
+    }*/
 
     @GetMapping(value = "/view-history")
     public ResponseEntity<CommonResponse> viewHistory() throws ModuleException {
@@ -68,7 +64,7 @@ public class CustomerController {
                 new CommonResponse(true, new ErrorResponse(HttpStatus.BAD_REQUEST, new ModuleException("Bad Strings"))));
     }
 
-    @PostMapping(value = "/add-item-to-cart")
+ /*   @PostMapping(value = "/add-item-to-cart")
     public ResponseEntity<CommonResponse> addItemToCart(@RequestBody Long productId, @RequestBody int quantity) {
         try {
             return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addItemToCart(productId, quantity))));
@@ -86,13 +82,23 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
         }
-    }
+    }*/
 
 
     @PostMapping(value = "/add-prescription-to-cart")
     public ResponseEntity<CommonResponse> addPrescriptionToCart(@RequestParam("file") MultipartFile file) {
         try {
             return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addPrescriptionToCart(file))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
+    @GetMapping(value = "/get-last-added-order")
+    public ResponseEntity<CommonResponse> getLastAddedOrder() {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.getLastAddedOrder())));
         } catch (ModuleException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));

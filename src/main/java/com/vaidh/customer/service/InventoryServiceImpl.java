@@ -1,19 +1,21 @@
 package com.vaidh.customer.service;
 
+import com.vaidh.customer.constants.ResponseMessage;
 import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ProductDTO;
 import com.vaidh.customer.dto.request.ModifyOrderRequest;
 import com.vaidh.customer.dto.request.ModifyProductRequest;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.exception.ModuleException;
+import com.vaidh.customer.message.CancelledOrderMessage;
+import com.vaidh.customer.message.PaymentMessage;
+import com.vaidh.customer.message.PlacedOrderMessage;
 import com.vaidh.customer.model.enums.ModifiedType;
 import com.vaidh.customer.model.enums.OrderStatus;
 import com.vaidh.customer.model.enums.PaymentMethod;
 import com.vaidh.customer.model.enums.ProductStatus;
-import com.vaidh.customer.model.inventory.ModifiedCartItem;
-import com.vaidh.customer.model.inventory.Order;
-import com.vaidh.customer.model.inventory.Payment;
-import com.vaidh.customer.model.inventory.Product;
+import com.vaidh.customer.model.inventory.*;
+import com.vaidh.customer.repository.FreshCartItemRepository;
 import com.vaidh.customer.repository.ModifiedCartItemRepository;
 import com.vaidh.customer.repository.OrderRepository;
 import com.vaidh.customer.repository.ProductRepository;
@@ -21,10 +23,7 @@ import com.vaidh.customer.util.InventoryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED;
@@ -40,6 +39,15 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Autowired
     ModifiedCartItemRepository modifiedCartItemRepository;
+
+    @Autowired
+    FreshCartItemRepository freshCartItemRepository;
+
+    @Autowired
+    PaymentService paymentService;
+
+    @Autowired
+    FireBaseStorageServiceImpl fireBaseStorageService;
 
     @Override
     public boolean addProduct(ProductDTO productDTO) throws ModuleException {
@@ -80,12 +88,13 @@ public class InventoryServiceImpl implements InventoryService{
         List<ModifiedCartItem> modifiedCartItems = InventoryUtil.getModifiedCardItems(modifyOrderRequest, productPriceByProductId);
         modifiedCartItemRepository.saveAll(modifiedCartItems);
 
-        Order order = orderRepository.findByFreshCartReferenceId(modifyOrderRequest.getReferenceCartId());
-        if (order != null) {
-            order.setOrderStatus(OrderStatus.VERIFIED);
-            order.setPayment(getPaymentForModifiedCartItems(modifiedCartItems));
-            order.setOrderModifiedTime(modifyOrderRequest.getModifiedTime());
-            orderRepository.save(order);
+        Optional<Order> order = orderRepository.findByFreshCartReferenceId(modifyOrderRequest.getReferenceCartId());
+        if (order.isPresent()) {
+            Order ordert = order.get();
+            ordert.setOrderStatus(OrderStatus.VERIFIED);
+            ordert.setPayment(getPaymentForModifiedCartItems(modifiedCartItems));
+            ordert.setOrderModifiedTime(modifyOrderRequest.getModifiedTime());
+            orderRepository.save(ordert);
         }
 
         return new CommonMessageResponse(SUCCESSFULLY_PLACED_ORDER);
@@ -160,4 +169,80 @@ public class InventoryServiceImpl implements InventoryService{
         }
         return false;
     }
+    @Override
+    public CommonMessageResponse addItemToCart(Long productId, Integer quantity, String freshCartId) throws ModuleException {
+        try {
+            Optional<Product> product = productRepository.findById(productId);
+            if (product.isPresent()) {
+                freshCartItemRepository.save(new FreshCartItem(freshCartId, productId, quantity, product.get().getPrice()));
+                return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
+            } else {
+                throw new ModuleException("No product exists with id " + productId);
+            }
+        } catch (Exception e) {
+            throw new ModuleException(e.getMessage());
+        }
+    }
+
+    @Override
+    public CommonMessageResponse addItemToCartAndPlaceOrder(Map<Long, Integer> items, String freshCartId) throws ModuleException {
+        try {
+            List<Product> products = productRepository.findAllById(items.keySet());
+            Map<Long, Double> productKeyWisePrice = products.stream().collect(Collectors.toMap(Product::getProductId,
+                    Product::getPrice, (x,y)->x));
+            List<FreshCartItem> freshCartItems = Optional.ofNullable(items.entrySet()).orElse(new HashSet<>()).
+                    stream().map(item -> new FreshCartItem(freshCartId, item.getKey(), item.getValue(),
+                    productKeyWisePrice.get(item.getKey())))
+                    .collect(Collectors.toList());
+            freshCartItemRepository.saveAll(freshCartItems);
+
+            Optional<Order> order = orderRepository.findByFreshCartReferenceId(freshCartId);
+            Double tot = 0.0;
+            if (order.isPresent()) {
+                Order orderEnt = order.get();
+                orderEnt.setOrderStatus(OrderStatus.ACCEPTED);
+
+                tot = paymentService.calculateTotalPaymentOfOrder(freshCartItems);
+                Payment payment = new Payment();
+                payment.setTotalAmount(tot);
+                payment.setNetAmount(tot);
+
+                orderEnt.setPayment(payment);
+                orderRepository.save(orderEnt);
+            }
+
+
+            PaymentMessage paymentMessage = new PaymentMessage(tot, 0.0, tot);
+            Map<String,Integer> itemWiseQuantity = items.entrySet().stream().collect(Collectors.toMap(e ->
+                    e.getKey().toString(), e -> e.getValue(), (x,y)->x));
+            fireBaseStorageService.sendMessage(String.format("orders/%s/accepted_order", freshCartId),
+                    new PlacedOrderMessage(itemWiseQuantity, paymentMessage));
+            fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.ACCEPTED.toString());
+            return new CommonMessageResponse(ResponseMessage.SUCCESSFULLY_ADDED);
+        } catch (Exception e) {
+            throw new ModuleException(e.getMessage());
+        }
+    }
+
+
+    @Override
+    public CommonMessageResponse cancelOrder(String freshCartId, String note) throws ModuleException {
+        if (freshCartId != null && !freshCartId.isEmpty()) {
+            Optional<Order> order = orderRepository.findByFreshCartReferenceId(freshCartId);
+            if (order.isPresent()) {
+                Order orderEnt = order.get();
+                orderEnt.setOrderStatus(OrderStatus.CANCELED);
+                orderEnt.setFailureNote(note);
+                orderRepository.save(orderEnt);
+                fireBaseStorageService.sendMessage(String.format("orders/%s/cancelled_order", freshCartId), new CancelledOrderMessage(note));
+                fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.CANCELED.toString());
+            }
+
+        } else {
+            throw new ModuleException("invalid reference id");
+        }
+
+        return new CommonMessageResponse("Order cancelled :: ref id :: " + freshCartId);
+    }
+
 }
