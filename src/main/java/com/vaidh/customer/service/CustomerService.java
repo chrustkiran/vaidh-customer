@@ -32,4 +32,6 @@ public interface CustomerService {
     List<Product> getProductByName(String name);
 
     AddPrescriptionResponse getLastAddedOrder() throws ModuleException;
+
+    AddPrescriptionResponse addItemToCartAndPlaceOrder(Map<Long, Integer> items) throws ModuleException;
 }

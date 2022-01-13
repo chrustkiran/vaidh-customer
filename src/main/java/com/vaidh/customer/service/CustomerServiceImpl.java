@@ -8,6 +8,8 @@ import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.dto.response.HistoryResponse;
 import com.vaidh.customer.exception.ModuleException;
 import com.vaidh.customer.message.OrderCreateMessage;
+import com.vaidh.customer.message.PaymentMessage;
+import com.vaidh.customer.message.PlacedOrderMessage;
 import com.vaidh.customer.message.UserMessage;
 import com.vaidh.customer.model.customer.UserEntity;
 import com.vaidh.customer.model.enums.FreshCartStatus;
@@ -53,6 +55,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PaymentService paymentService;
+
+    @Autowired
+    FreshCartItemRepository freshCartItemRepository;
 
     @Override
     public List<Product> getAllProducts() {
@@ -235,6 +243,46 @@ public class CustomerServiceImpl implements CustomerService {
         }*/
     }
 
+    @Override
+    public AddPrescriptionResponse addItemToCartAndPlaceOrder(Map<Long, Integer> items) throws ModuleException {
+        try {
+            String freshCartId = getFreshCartId();
+            List<Product> products = productRepository.findAllById(items.keySet());
+            Map<Long, Double> productKeyWisePrice = products.stream().collect(Collectors.toMap(Product::getProductId,
+                    Product::getPrice, (x,y)->x));
+            List<FreshCartItem> freshCartItems = Optional.ofNullable(items.entrySet()).orElse(new HashSet<>()).
+                    stream().map(item -> new FreshCartItem(freshCartId, item.getKey(), item.getValue(),
+                    productKeyWisePrice.get(item.getKey())))
+                    .collect(Collectors.toList());
+            freshCartItemRepository.saveAll(freshCartItems);
+
+            Optional<Order> order = orderRepository.findByFreshCartReferenceId(freshCartId);
+            Double tot = 0.0;
+            if (order.isPresent()) {
+                Order orderEnt = order.get();
+                orderEnt.setOrderStatus(OrderStatus.ACCEPTED);
+
+                tot = paymentService.calculateTotalPaymentOfOrder(freshCartItems);
+                Payment payment = new Payment();
+                payment.setTotalAmount(tot);
+                payment.setNetAmount(tot);
+
+                orderEnt.setPayment(payment);
+                orderRepository.save(orderEnt);
+            }
+
+
+            PaymentMessage paymentMessage = new PaymentMessage(tot, 0.0, tot);
+            Map<String,Integer> itemWiseQuantity = items.entrySet().stream().collect(Collectors.toMap(e ->
+                    e.getKey().toString(), e -> e.getValue(), (x,y)->x));
+            fireBaseStorageService.sendMessage(String.format("orders/%s/accepted_order", freshCartId),
+                    new PlacedOrderMessage(itemWiseQuantity, paymentMessage));
+            fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.ACCEPTED.toString());
+            return new AddPrescriptionResponse(freshCartId);
+        } catch (Exception e) {
+            throw new ModuleException(e.getMessage());
+        }
+    }
 
 
 }

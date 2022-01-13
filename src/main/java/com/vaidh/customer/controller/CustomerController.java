@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.Map;
 
 //Customer's endpoint
 @RestController
@@ -104,4 +105,15 @@ public class CustomerController {
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
         }
     }
+
+    @PostMapping(value = "/add-items-to-cart-and-place-order")
+    public ResponseEntity<CommonResponse> addItemsToCart(@RequestBody Map<Long, Integer> items) {
+        try {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(customerService.addItemToCartAndPlaceOrder(items))));
+        } catch (ModuleException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
 }
