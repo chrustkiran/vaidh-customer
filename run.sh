@@ -1,5 +1,5 @@
  chmod +x gradlew
-./gradlew clean
+./gradlew clean build
 
 DOCKER_BUILDKIT=1 docker build -t vaidh/customer .
 
