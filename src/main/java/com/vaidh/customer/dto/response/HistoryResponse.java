@@ -12,16 +12,14 @@ public class HistoryResponse implements Serializable, CommonResults {
     private final long serialVersionUID = 1L;
 
     private Date createdTime;
-    private Date modifiedTime;
     private List<Product> products;
     private OrderStatus orderStatus;
-    private double totalPrice;
-    private double discount;
-    private double netAmount;
+    private Double totalPrice;
+    private Double discount;
+    private Double netAmount;
 
-    public HistoryResponse(Date createdTime, Date modifiedTime, List<Product> products, OrderStatus orderStatus, double totalPrice, double discount, double netAmount) {
+    public HistoryResponse(Date createdTime, List<Product> products, OrderStatus orderStatus, Double totalPrice, Double discount, Double netAmount) {
         this.createdTime = createdTime;
-        this.modifiedTime = modifiedTime;
         this.products = products;
         this.orderStatus = orderStatus;
         this.totalPrice = totalPrice;
@@ -35,14 +33,6 @@ public class HistoryResponse implements Serializable, CommonResults {
 
     public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
-    }
-
-    public Date getModifiedTime() {
-        return modifiedTime;
-    }
-
-    public void setModifiedTime(Date modifiedTime) {
-        this.modifiedTime = modifiedTime;
     }
 
     public List<Product> getProducts() {
@@ -65,7 +55,7 @@ public class HistoryResponse implements Serializable, CommonResults {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
 
@@ -73,7 +63,7 @@ public class HistoryResponse implements Serializable, CommonResults {
         return discount;
     }
 
-    public void setDiscount(double discount) {
+    public void setDiscount(Double discount) {
         this.discount = discount;
     }
 
@@ -81,7 +71,7 @@ public class HistoryResponse implements Serializable, CommonResults {
         return netAmount;
     }
 
-    public void setNetAmount(double netAmount) {
+    public void setNetAmount(Double netAmount) {
         this.netAmount = netAmount;
     }
 }

@@ -155,28 +155,41 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CommonResults> getHistories() {
-        List<Order> orders = orderRepository.findOrdersByUser(authenticationService.getCurrentUserName());
-        List<CommonResults> histories = orders.stream().map(order -> {
-            List<ModifiedCartItem> modifiedCartItems = modifiedCartItemRepository.
-                    findAllModifiedCartItemsByFreshCartId(order.getFreshCartReferenceId());
-            List<Product> products = new ArrayList<>();
-            if (modifiedCartItems != null && !modifiedCartItems.isEmpty()) {
-                modifiedCartItems.stream().map(modifiedCartItem -> {
-                    Product product = new Product();
-                    product.setName(modifiedCartItem.getProduct().getName());
-                    product.setCompanyName(modifiedCartItem.getProduct().getCompanyName());
-                    product.setDescription(modifiedCartItem.getProduct().getDescription());
-                    product.setPrice(modifiedCartItem.getCurrentPrice());
+        try {
+            List<Order> orders = orderRepository.findOrdersByUser(authenticationService.getCurrentUserName());
+            List<CommonResults> histories = new ArrayList<>();
+            for (Order order : orders) {
+                List<FreshCartItem> freshCartItems = freshCartItemRepository.
+                        findByFreshCartReferenceId(order.getFreshCartReferenceId());
+                List<Product> products = new ArrayList<>();
+                if (freshCartItems != null && !freshCartItems.isEmpty()) {
+                    List<Product> productList = productRepository.
+                            findAllById(freshCartItems.stream().map(freshCartItem ->
+                                    freshCartItem.getProductId()).collect(Collectors.toList()));
+                    Map<Long, Product> productIdWiseProducts = productList.stream().collect(
+                            Collectors.toMap(Product::getProductId, p -> p, (x, y) -> x));
 
-                    products.add(product);
-                    return null;
-                });
+                    for (FreshCartItem freshCartItem : freshCartItems) {
+                        Product product = new Product();
+                        product.setName(productIdWiseProducts.get(freshCartItem.getProductId()).getName());
+                        product.setCompanyName(productIdWiseProducts.get(freshCartItem.getProductId()).getCompanyName());
+                        product.setDescription(productIdWiseProducts.get(freshCartItem.getProductId()).getDescription());
+                        product.setPrice(freshCartItem.getPrice());
+
+                        products.add(product);
+                    }
+                }
+                Payment payment = order.getPayment();
+                HistoryResponse historyResponse = new HistoryResponse(order.getOrderCreatedTime(), products,
+                        order.getOrderStatus(), payment != null ? payment.getTotalAmount() != null ? payment.getTotalAmount() : 0.0 : 0.0, payment != null ?
+                        payment.getOfferAmount() != null ? payment.getOfferAmount() : 0.0  : 0.0,
+                        payment != null ? payment.getNetAmount() != null ? payment.getNetAmount(): 0.0 : 0.0);
+                histories.add(historyResponse);
             }
-            return new HistoryResponse(order.getOrderCreatedTime(), order.getOrderModifiedTime(), products,
-                    order.getOrderStatus(), order.getPayment().getModifiedAmount(), order.getPayment().
-                    getOfferAmount(), order.getPayment().getNetAmount());
-        }).collect(Collectors.toList());
-        return histories;
+            return histories;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -256,19 +269,18 @@ public class CustomerServiceImpl implements CustomerService {
                     .collect(Collectors.toList());
             freshCartItemRepository.saveAll(freshCartItems);
 
-            Optional<Order> order = orderRepository.findByFreshCartReferenceId(freshCartId);
+            Order order = new Order(freshCartId, authenticationService.getCurrentUserName(), new Date(), null);
             Double tot = 0.0;
-            if (order.isPresent()) {
-                Order orderEnt = order.get();
-                orderEnt.setOrderStatus(OrderStatus.ACCEPTED);
+            if (order != null) {
+                order.setOrderStatus(OrderStatus.ACCEPTED);
 
                 tot = paymentService.calculateTotalPaymentOfOrder(freshCartItems);
                 Payment payment = new Payment();
                 payment.setTotalAmount(tot);
                 payment.setNetAmount(tot);
 
-                orderEnt.setPayment(payment);
-                orderRepository.save(orderEnt);
+                order.setPayment(payment);
+                orderRepository.save(order);
             }
 
 
