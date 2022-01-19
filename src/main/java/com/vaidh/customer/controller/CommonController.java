@@ -3,6 +3,7 @@ package com.vaidh.customer.controller;
 import com.vaidh.customer.dto.CommonResponse;
 import com.vaidh.customer.dto.ErrorResponse;
 import com.vaidh.customer.service.CustomerService;
+import com.vaidh.customer.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,9 @@ import java.util.ArrayList;
 public class CommonController {
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private MailService mailService;
 
     @GetMapping(value = "/get-all-products")
     public ResponseEntity<CommonResponse> getAllProducts() {
@@ -37,5 +41,11 @@ public class CommonController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new
                     CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())));
         }
+    }
+
+    @GetMapping(value = "/send-mail")
+    public String sendMail() {
+        mailService.sendMail("hi", "christkiran.15@cse.mrt.ac.lk", "sample");
+        return "success";
     }
 }
