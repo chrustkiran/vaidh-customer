@@ -3,9 +3,7 @@ package com.vaidh.customer.dto;
 import com.vaidh.customer.model.enums.ProductCategory;
 import com.vaidh.customer.model.enums.ProductUnit;
 
-public class ProductDTO {
-    //only for editing
-    private Long id;
+public class ProductHistoryDTO {
     private String name;
     private ProductCategory productCategory;
     private ProductUnit productUnit;
@@ -13,6 +11,7 @@ public class ProductDTO {
     private String imageURL;
     private String companyName;
     private String description;
+    private int quantity;
 
     public String getName() {
         return name;
@@ -70,11 +69,11 @@ public class ProductDTO {
         this.description = description;
     }
 
-    public Long getId() {
-        return id;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

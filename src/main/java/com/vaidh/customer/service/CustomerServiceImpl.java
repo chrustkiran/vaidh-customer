@@ -2,6 +2,7 @@ package com.vaidh.customer.service;
 
 import com.vaidh.customer.constants.ResponseMessage;
 import com.vaidh.customer.dto.CommonResults;
+import com.vaidh.customer.dto.ProductHistoryDTO;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
 import com.vaidh.customer.dto.response.AddPrescriptionResponse;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
@@ -161,7 +162,7 @@ public class CustomerServiceImpl implements CustomerService {
             for (Order order : orders) {
                 List<FreshCartItem> freshCartItems = freshCartItemRepository.
                         findByFreshCartReferenceId(order.getFreshCartReferenceId());
-                List<Product> products = new ArrayList<>();
+                List<ProductHistoryDTO> products = new ArrayList<>();
                 if (freshCartItems != null && !freshCartItems.isEmpty()) {
                     List<Product> productList = productRepository.
                             findAllById(freshCartItems.stream().map(freshCartItem ->
@@ -170,11 +171,13 @@ public class CustomerServiceImpl implements CustomerService {
                             Collectors.toMap(Product::getProductId, p -> p, (x, y) -> x));
 
                     for (FreshCartItem freshCartItem : freshCartItems) {
-                        Product product = new Product();
+                        ProductHistoryDTO product = new ProductHistoryDTO();
                         product.setName(productIdWiseProducts.get(freshCartItem.getProductId()).getName());
                         product.setCompanyName(productIdWiseProducts.get(freshCartItem.getProductId()).getCompanyName());
                         product.setDescription(productIdWiseProducts.get(freshCartItem.getProductId()).getDescription());
                         product.setPrice(freshCartItem.getPrice());
+                        product.setImageURL(productIdWiseProducts.get(freshCartItem.getProductId()).getImageUrl());
+                        product.setQuantity(freshCartItem.getQuantity());
 
                         products.add(product);
                     }
@@ -183,7 +186,7 @@ public class CustomerServiceImpl implements CustomerService {
                 HistoryResponse historyResponse = new HistoryResponse(order.getOrderCreatedTime(), products,
                         order.getOrderStatus(), payment != null ? payment.getTotalAmount() != null ? payment.getTotalAmount() : 0.0 : 0.0, payment != null ?
                         payment.getOfferAmount() != null ? payment.getOfferAmount() : 0.0  : 0.0,
-                        payment != null ? payment.getNetAmount() != null ? payment.getNetAmount(): 0.0 : 0.0);
+                        payment != null ? payment.getNetAmount() != null ? payment.getNetAmount(): 0.0 : 0.0, order.getPrescribedImageUrl());
                 histories.add(historyResponse);
             }
             return histories;
@@ -272,7 +275,7 @@ public class CustomerServiceImpl implements CustomerService {
             Order order = new Order(freshCartId, authenticationService.getCurrentUserName(), new Date(), null);
             Double tot = 0.0;
             if (order != null) {
-                order.setOrderStatus(OrderStatus.ACCEPTED);
+                order.setOrderStatus(OrderStatus.CREATED);
 
                 tot = paymentService.calculateTotalPaymentOfOrder(freshCartItems);
                 Payment payment = new Payment();
@@ -287,9 +290,10 @@ public class CustomerServiceImpl implements CustomerService {
             PaymentMessage paymentMessage = new PaymentMessage(tot, 0.0, tot);
             Map<String,Integer> itemWiseQuantity = items.entrySet().stream().collect(Collectors.toMap(e ->
                     e.getKey().toString(), e -> e.getValue(), (x,y)->x));
+            sendFirebaseCreateOrderMessage(freshCartId, "");
             fireBaseStorageService.sendMessage(String.format("orders/%s/accepted_order", freshCartId),
                     new PlacedOrderMessage(itemWiseQuantity, paymentMessage));
-            fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.ACCEPTED.toString());
+            fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.CREATED.toString());
             return new AddPrescriptionResponse(freshCartId);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());

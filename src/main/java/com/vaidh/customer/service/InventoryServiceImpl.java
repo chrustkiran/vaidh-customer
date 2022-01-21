@@ -245,4 +245,61 @@ public class InventoryServiceImpl implements InventoryService{
         return new CommonMessageResponse("Order cancelled :: ref id :: " + freshCartId);
     }
 
+    @Override
+    public CommonMessageResponse acceptOrder(String referenceId) throws ModuleException {
+        if (referenceId != null && !referenceId.isEmpty()) {
+            Optional<Order> order = orderRepository.findByFreshCartReferenceId(referenceId);
+            if (order.isPresent()) {
+                Order orderEnt = order.get();
+                orderEnt.setOrderStatus(OrderStatus.ACCEPTED);
+                orderRepository.save(orderEnt);
+                fireBaseStorageService.sendMessage(String.format("orders/%s/status", referenceId), OrderStatus.ACCEPTED.toString());
+            }
+        } else {
+            throw new ModuleException("invalid reference id");
+        }
+
+        return new CommonMessageResponse("Order accpeted :: ref id :: " + referenceId);
+    }
+
+    @Override
+    public CommonMessageResponse editProducts(List<ProductDTO> products) throws Exception {
+        if (products != null && !products.isEmpty()) {
+            Map<Long, ProductDTO> productDTOMap = products.stream().collect(Collectors.toMap(ProductDTO::getId, x->x, (x,y)->x));
+            List<Product> productObs = productRepository.findAllById(productDTOMap.keySet());
+
+            for (Product product : productObs) {
+                ProductDTO productdto = productDTOMap.get(product.getProductId());
+
+                if (productdto.getCompanyName() != null && !productdto.getCompanyName().isEmpty()) {
+                    product.setCompanyName(productdto.getCompanyName());
+                }
+
+                if (productdto.getName() != null && !productdto.getName().isEmpty()) {
+                    product.setName(productdto.getName());
+                }
+
+                if (productdto.getPrice() != null) {
+                    product.setPrice(productdto.getPrice());
+                }
+
+                if (productdto.getProductCategory() != null) {
+                    product.setProductCategory(productdto.getProductCategory());
+                }
+
+                if (productdto.getDescription() != null && !productdto.getDescription().isEmpty()) {
+                    product.setDescription(productdto.getDescription());
+                }
+
+                if (productdto.getImageURL() != null && !productdto.getImageURL().isEmpty()) {
+                    product.setImageUrl(productdto.getImageURL());
+                }
+
+            }
+
+            productRepository.saveAll(productObs);
+        }
+        return new CommonMessageResponse("success");
+    }
+
 }

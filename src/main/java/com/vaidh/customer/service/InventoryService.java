@@ -21,4 +21,6 @@ public interface InventoryService {
     CommonMessageResponse addItemToCart(Long productId, Integer quantity, String freshCartId) throws ModuleException;
     CommonMessageResponse addItemToCartAndPlaceOrder(Map<Long, Integer> items, String freshCartId) throws ModuleException;
     CommonMessageResponse cancelOrder(String freshCartId, String note) throws ModuleException;
+    CommonMessageResponse acceptOrder(String referenceId) throws ModuleException;
+    CommonMessageResponse editProducts(List<ProductDTO> products) throws Exception;
 }

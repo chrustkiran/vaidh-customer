@@ -1,8 +1,8 @@
 package com.vaidh.customer.dto.response;
 
 import com.vaidh.customer.dto.CommonResults;
+import com.vaidh.customer.dto.ProductHistoryDTO;
 import com.vaidh.customer.model.enums.OrderStatus;
-import com.vaidh.customer.model.inventory.Product;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,19 +12,22 @@ public class HistoryResponse implements Serializable, CommonResults {
     private final long serialVersionUID = 1L;
 
     private Date createdTime;
-    private List<Product> products;
+    private List<ProductHistoryDTO> products;
     private OrderStatus orderStatus;
     private Double totalPrice;
     private Double discount;
     private Double netAmount;
+    private String prescriptionUrl;
 
-    public HistoryResponse(Date createdTime, List<Product> products, OrderStatus orderStatus, Double totalPrice, Double discount, Double netAmount) {
+    public HistoryResponse(Date createdTime, List<ProductHistoryDTO> products, OrderStatus orderStatus, Double totalPrice,
+                           Double discount, Double netAmount, String prescriptionUrl) {
         this.createdTime = createdTime;
         this.products = products;
         this.orderStatus = orderStatus;
         this.totalPrice = totalPrice;
         this.discount = discount;
         this.netAmount = netAmount;
+        this.prescriptionUrl = prescriptionUrl;
     }
 
     public Date getCreatedTime() {
@@ -35,11 +38,11 @@ public class HistoryResponse implements Serializable, CommonResults {
         this.createdTime = createdTime;
     }
 
-    public List<Product> getProducts() {
+    public List<ProductHistoryDTO> getProducts() {
         return products;
     }
 
-    public void setProducts(List<Product> products) {
+    public void setProducts(List<ProductHistoryDTO> products) {
         this.products = products;
     }
 
@@ -73,5 +76,13 @@ public class HistoryResponse implements Serializable, CommonResults {
 
     public void setNetAmount(Double netAmount) {
         this.netAmount = netAmount;
+    }
+
+    public String getPrescriptionUrl() {
+        return prescriptionUrl;
+    }
+
+    public void setPrescriptionUrl(String prescriptionUrl) {
+        this.prescriptionUrl = prescriptionUrl;
     }
 }

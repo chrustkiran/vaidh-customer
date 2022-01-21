@@ -170,4 +170,23 @@ public class AdminController {
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
         }
     }
+
+    @PostMapping("/accept-order")
+    public ResponseEntity<CommonResponse> acceptOrder(@RequestBody String referenceId) throws Exception {
+        try  {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.acceptOrder(referenceId))));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
+    public ResponseEntity<CommonResponse> editProducts(@RequestBody List<ProductDTO> products) {
+        try  {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.editProducts(products))));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
 }
