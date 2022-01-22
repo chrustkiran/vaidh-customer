@@ -1,15 +1,13 @@
 package com.vaidh.customer.message;
 
-import java.util.Date;
-
 public abstract class FireBaseMessage {
-    private Date createdTime;
+    private String createdTime;
 
-    public Date getCreatedTime() {
+    public String getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(Date createdTime) {
+    public void setCreatedTime(String createdTime) {
         this.createdTime = createdTime;
     }
 }

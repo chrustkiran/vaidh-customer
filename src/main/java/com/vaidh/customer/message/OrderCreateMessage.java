@@ -15,6 +15,7 @@ public class OrderCreateMessage extends FireBaseMessage {
         this.image = image;
         this.user = user;
         this.status = status;
+        this.setCreatedTime(String.valueOf(new Date().getTime()));
     }
 
     public String getImage() {
