@@ -18,9 +18,10 @@ public class HistoryResponse implements Serializable, CommonResults {
     private Double discount;
     private Double netAmount;
     private String prescriptionUrl;
+    private String failureNote;
 
     public HistoryResponse(Date createdTime, List<ProductHistoryDTO> products, OrderStatus orderStatus, Double totalPrice,
-                           Double discount, Double netAmount, String prescriptionUrl) {
+                           Double discount, Double netAmount, String prescriptionUrl, String failureNote) {
         this.createdTime = createdTime;
         this.products = products;
         this.orderStatus = orderStatus;
@@ -28,6 +29,7 @@ public class HistoryResponse implements Serializable, CommonResults {
         this.discount = discount;
         this.netAmount = netAmount;
         this.prescriptionUrl = prescriptionUrl;
+        this.failureNote = failureNote;
     }
 
     public Date getCreatedTime() {
@@ -84,5 +86,13 @@ public class HistoryResponse implements Serializable, CommonResults {
 
     public void setPrescriptionUrl(String prescriptionUrl) {
         this.prescriptionUrl = prescriptionUrl;
+    }
+
+    public String getFailureNote() {
+        return failureNote;
+    }
+
+    public void setFailureNote(String failureNote) {
+        this.failureNote = failureNote;
     }
 }

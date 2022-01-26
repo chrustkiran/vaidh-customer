@@ -3,6 +3,7 @@ package com.vaidh.customer.service;
 import com.vaidh.customer.constants.ResponseMessage;
 import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ProductHistoryDTO;
+import com.vaidh.customer.dto.PushNotificationDTO;
 import com.vaidh.customer.dto.request.ModifyUserRequest;
 import com.vaidh.customer.dto.response.AddPrescriptionResponse;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
@@ -63,6 +64,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     FreshCartItemRepository freshCartItemRepository;
 
+    @Autowired
+    FirebaseNotificationService firebaseNotificationService;
+
     @Override
     public List<Product> getAllProducts() {
         return productRepository.findAllActiveProducts();
@@ -112,6 +116,15 @@ public class CustomerServiceImpl implements CustomerService {
             orderRepository.save(order);
 
             sendFirebaseCreateOrderMessage(freshCartId, url);
+
+            String topic = "admin-orders";
+            PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+
+            pushNotificationDTO.setTopic(topic);
+            pushNotificationDTO.setTitle("New Order");
+            pushNotificationDTO.setMessage("You have received a new order from " + authenticationService.getCurrentUserName());
+
+            firebaseNotificationService.sendMessage(pushNotificationDTO);
             return new AddPrescriptionResponse(freshCartId);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());
@@ -186,7 +199,7 @@ public class CustomerServiceImpl implements CustomerService {
                 HistoryResponse historyResponse = new HistoryResponse(order.getOrderCreatedTime(), products,
                         order.getOrderStatus(), payment != null ? payment.getTotalAmount() != null ? payment.getTotalAmount() : 0.0 : 0.0, payment != null ?
                         payment.getOfferAmount() != null ? payment.getOfferAmount() : 0.0  : 0.0,
-                        payment != null ? payment.getNetAmount() != null ? payment.getNetAmount(): 0.0 : 0.0, order.getPrescribedImageUrl());
+                        payment != null ? payment.getNetAmount() != null ? payment.getNetAmount(): 0.0 : 0.0, order.getPrescribedImageUrl(), order.getFailureNote());
                 histories.add(historyResponse);
             }
             return histories;
@@ -294,6 +307,17 @@ public class CustomerServiceImpl implements CustomerService {
             fireBaseStorageService.sendMessage(String.format("orders/%s/accepted_order", freshCartId),
                     new PlacedOrderMessage(itemWiseQuantity, paymentMessage));
             fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.CREATED.toString());
+
+
+            String topic = "admin-orders";
+            PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+
+            pushNotificationDTO.setTopic(topic);
+            pushNotificationDTO.setTitle("New Order");
+            pushNotificationDTO.setMessage("You have received a new order from " + authenticationService.getCurrentUserName());
+
+            firebaseNotificationService.sendMessage(pushNotificationDTO);
+
             return new AddPrescriptionResponse(freshCartId);
         } catch (Exception e) {
             throw new ModuleException(e.getMessage());

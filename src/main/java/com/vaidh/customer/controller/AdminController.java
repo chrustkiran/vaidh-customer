@@ -1,12 +1,10 @@
 package com.vaidh.customer.controller;
 
 import com.vaidh.customer.dto.*;
-import com.vaidh.customer.dto.request.AddItemsRequest;
-import com.vaidh.customer.dto.request.CancelOrderRequest;
-import com.vaidh.customer.dto.request.ModifyOrderRequest;
-import com.vaidh.customer.dto.request.ModifyProductRequest;
+import com.vaidh.customer.dto.request.*;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
 import com.vaidh.customer.exception.ModuleException;
+import com.vaidh.customer.model.enums.OrderStatus;
 import com.vaidh.customer.service.AuthenticationService;
 import com.vaidh.customer.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,9 +179,20 @@ public class AdminController {
         }
     }
 
+    @PostMapping("/edit-product")
     public ResponseEntity<CommonResponse> editProducts(@RequestBody List<ProductDTO> products) {
         try  {
             return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.editProducts(products))));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));
+        }
+    }
+
+    @PostMapping("/change-order-status")
+    public ResponseEntity<CommonResponse> changeOrderStatus(@RequestBody ChangeOrderStatusRequest changeOrderStatusRequest) {
+        try  {
+            return ResponseEntity.ok(new CommonResponse(Arrays.asList(inventoryService.changeOrderStatus(changeOrderStatusRequest))));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new CommonResponse(true, new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e)));

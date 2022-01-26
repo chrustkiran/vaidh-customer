@@ -2,7 +2,9 @@ package com.vaidh.customer.controller;
 
 import com.vaidh.customer.dto.CommonResponse;
 import com.vaidh.customer.dto.ErrorResponse;
+import com.vaidh.customer.dto.PushNotificationDTO;
 import com.vaidh.customer.service.CustomerService;
+import com.vaidh.customer.service.FirebaseNotificationService;
 import com.vaidh.customer.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/common")
@@ -22,6 +25,9 @@ public class CommonController {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private FirebaseNotificationService firebaseNotificationService;
 
     @GetMapping(value = "/get-all-products")
     public ResponseEntity<CommonResponse> getAllProducts() {
@@ -47,5 +53,21 @@ public class CommonController {
     public String sendMail() {
         mailService.sendMail("hi", "christkiran.15@cse.mrt.ac.lk", "sample");
         return "success";
+    }
+
+    @GetMapping(value = "/send-fcm")
+    public String sendFCM() {
+        PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+        pushNotificationDTO.setTitle("sample-title");
+        pushNotificationDTO.setTopic("admin-orders");
+        pushNotificationDTO.setMessage("sample-message");
+        try {
+            firebaseNotificationService.sendMessage(pushNotificationDTO);
+            return "success";
+        } catch (InterruptedException e) {
+            return e.getMessage();
+        } catch (ExecutionException e) {
+            return e.getMessage();
+        }
     }
 }

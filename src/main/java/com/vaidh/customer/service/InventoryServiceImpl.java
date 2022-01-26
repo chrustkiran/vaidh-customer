@@ -1,8 +1,9 @@
 package com.vaidh.customer.service;
 
 import com.vaidh.customer.constants.ResponseMessage;
-import com.vaidh.customer.dto.CommonResults;
 import com.vaidh.customer.dto.ProductDTO;
+import com.vaidh.customer.dto.PushNotificationDTO;
+import com.vaidh.customer.dto.request.ChangeOrderStatusRequest;
 import com.vaidh.customer.dto.request.ModifyOrderRequest;
 import com.vaidh.customer.dto.request.ModifyProductRequest;
 import com.vaidh.customer.dto.response.CommonMessageResponse;
@@ -12,7 +13,6 @@ import com.vaidh.customer.message.PaymentMessage;
 import com.vaidh.customer.message.PlacedOrderMessage;
 import com.vaidh.customer.model.enums.ModifiedType;
 import com.vaidh.customer.model.enums.OrderStatus;
-import com.vaidh.customer.model.enums.PaymentMethod;
 import com.vaidh.customer.model.enums.ProductStatus;
 import com.vaidh.customer.model.inventory.*;
 import com.vaidh.customer.repository.FreshCartItemRepository;
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.vaidh.customer.constants.ResponseMessage.SUCCESSFULLY_MODIFIED;
@@ -48,6 +49,9 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Autowired
     FireBaseStorageServiceImpl fireBaseStorageService;
+
+    @Autowired
+    FirebaseNotificationService firebaseNotificationService;
 
     @Override
     public boolean addProduct(ProductDTO productDTO) throws ModuleException {
@@ -226,7 +230,7 @@ public class InventoryServiceImpl implements InventoryService{
 
 
     @Override
-    public CommonMessageResponse cancelOrder(String freshCartId, String note) throws ModuleException {
+    public CommonMessageResponse cancelOrder(String freshCartId, String note) throws ModuleException, ExecutionException, InterruptedException {
         if (freshCartId != null && !freshCartId.isEmpty()) {
             Optional<Order> order = orderRepository.findByFreshCartReferenceId(freshCartId);
             if (order.isPresent()) {
@@ -236,6 +240,15 @@ public class InventoryServiceImpl implements InventoryService{
                 orderRepository.save(orderEnt);
                 fireBaseStorageService.sendMessage(String.format("orders/%s/cancelled_order", freshCartId), new CancelledOrderMessage(note));
                 fireBaseStorageService.sendMessage(String.format("orders/%s/status", freshCartId), OrderStatus.CANCELED.toString());
+
+                String topic = "order-" + orderEnt.getOrderPlacedBy();
+                PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+
+                pushNotificationDTO.setTopic(topic);
+                pushNotificationDTO.setTitle("Your order is " + OrderStatus.CANCELED.toString());
+                pushNotificationDTO.setMessage("- vaidh");
+
+                firebaseNotificationService.sendMessage(pushNotificationDTO);
             }
 
         } else {
@@ -246,7 +259,7 @@ public class InventoryServiceImpl implements InventoryService{
     }
 
     @Override
-    public CommonMessageResponse acceptOrder(String referenceId) throws ModuleException {
+    public CommonMessageResponse acceptOrder(String referenceId) throws ModuleException, ExecutionException, InterruptedException {
         if (referenceId != null && !referenceId.isEmpty()) {
             Optional<Order> order = orderRepository.findByFreshCartReferenceId(referenceId);
             if (order.isPresent()) {
@@ -254,6 +267,15 @@ public class InventoryServiceImpl implements InventoryService{
                 orderEnt.setOrderStatus(OrderStatus.ACCEPTED);
                 orderRepository.save(orderEnt);
                 fireBaseStorageService.sendMessage(String.format("orders/%s/status", referenceId), OrderStatus.ACCEPTED.toString());
+
+                String topic = "order-" + orderEnt.getOrderPlacedBy();
+                PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+
+                pushNotificationDTO.setTopic(topic);
+                pushNotificationDTO.setTitle("Your order is " + OrderStatus.ACCEPTED.toString());
+                pushNotificationDTO.setMessage("- vaidh");
+
+                firebaseNotificationService.sendMessage(pushNotificationDTO);
             }
         } else {
             throw new ModuleException("invalid reference id");
@@ -300,6 +322,34 @@ public class InventoryServiceImpl implements InventoryService{
             productRepository.saveAll(productObs);
         }
         return new CommonMessageResponse("success");
+    }
+
+    @Override
+    public CommonMessageResponse changeOrderStatus(ChangeOrderStatusRequest orderStatus) throws ExecutionException, InterruptedException {
+        if (orderStatus.getOrderStatus() != null &&
+                orderStatus.getReferenceId() != null && !orderStatus.getReferenceId().isEmpty()) {
+            Optional<Order> orderOpt = orderRepository.findByFreshCartReferenceId(orderStatus.getReferenceId());
+            if (orderOpt.isPresent()) {
+                Order order = orderOpt.get();
+                order.setOrderStatus(orderStatus.getOrderStatus());
+                orderRepository.save(order);
+
+                fireBaseStorageService.sendMessage(String.format("orders/%s/status", orderStatus.getReferenceId()), orderStatus.getOrderStatus().toString());
+
+                String topic = "order-" + order.getOrderPlacedBy();
+                PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
+
+                pushNotificationDTO.setTopic(topic);
+                pushNotificationDTO.setTitle("Your order is " + orderStatus.getOrderStatus().toString());
+                pushNotificationDTO.setMessage("- vaidh");
+
+                firebaseNotificationService.sendMessage(pushNotificationDTO);
+
+                return new CommonMessageResponse("success");
+            }
+
+        }
+        return new CommonMessageResponse("failed");
     }
 
 }
