@@ -4,6 +4,7 @@ import com.vaidh.customer.dto.ModifyProductStatus;
 import com.vaidh.customer.dto.ProductDTO;
 import com.vaidh.customer.dto.request.ModifyOrderRequest;
 import com.vaidh.customer.model.enums.ModifiedType;
+import com.vaidh.customer.model.enums.OrderStatus;
 import com.vaidh.customer.model.enums.ProductCategory;
 import com.vaidh.customer.model.enums.ProductUnit;
 import com.vaidh.customer.model.inventory.ModifiedCartItem;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class InventoryUtil {
+    private static final String YOUR_ORDER_HAS_BEEN = "Your order has been";
+
     public static Product convertToProduct(ProductDTO productDTO) {
         if (productDTO != null) {
             Product product = new Product();
@@ -87,5 +90,21 @@ public class InventoryUtil {
             }
         }
         return null;
+    }
+
+    public static String getMeaningFullOrderStatus(OrderStatus orderStatus) {
+        if (orderStatus != null) {
+            switch (orderStatus) {
+                case CREATED: return new StringBuilder(YOUR_ORDER_HAS_BEEN).append(" created").toString();
+                case ACCEPTED: return new StringBuilder(YOUR_ORDER_HAS_BEEN).append(" accepted").toString();
+                case VERIFIED: return new StringBuilder(YOUR_ORDER_HAS_BEEN).append(" verified").toString();
+                case CANCELED: return new StringBuilder("Sorry! ").append(YOUR_ORDER_HAS_BEEN).append(" created").toString();
+                case COMPLETED: return new StringBuilder(YOUR_ORDER_HAS_BEEN).append(" completed").toString();
+                case DELIVERY_FAILED: return new StringBuilder("Sorry! ").append("The delivery of your order is failed").toString();
+                case DELIVERY_PENDING:return new StringBuilder("The delivery of your order is pending").toString();
+                case DELIVERY_IN_PROGRESS: return new StringBuilder("The delivery of your order is in progress").toString();
+            }
+        }
+        return "";
     }
 }

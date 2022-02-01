@@ -245,7 +245,7 @@ public class InventoryServiceImpl implements InventoryService{
                 PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
 
                 pushNotificationDTO.setTopic(topic);
-                pushNotificationDTO.setTitle("Your order is " + OrderStatus.CANCELED.toString());
+                pushNotificationDTO.setTitle(InventoryUtil.getMeaningFullOrderStatus(OrderStatus.CANCELED));
                 pushNotificationDTO.setMessage("- vaidh");
 
                 firebaseNotificationService.sendMessage(pushNotificationDTO);
@@ -272,7 +272,7 @@ public class InventoryServiceImpl implements InventoryService{
                 PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
 
                 pushNotificationDTO.setTopic(topic);
-                pushNotificationDTO.setTitle("Your order is " + OrderStatus.ACCEPTED.toString());
+                pushNotificationDTO.setTitle(InventoryUtil.getMeaningFullOrderStatus(OrderStatus.ACCEPTED));
                 pushNotificationDTO.setMessage("- vaidh");
 
                 firebaseNotificationService.sendMessage(pushNotificationDTO);
@@ -340,7 +340,7 @@ public class InventoryServiceImpl implements InventoryService{
                 PushNotificationDTO pushNotificationDTO = new PushNotificationDTO();
 
                 pushNotificationDTO.setTopic(topic);
-                pushNotificationDTO.setTitle("Your order is " + orderStatus.getOrderStatus().toString());
+                pushNotificationDTO.setTitle(InventoryUtil.getMeaningFullOrderStatus(orderStatus.getOrderStatus()));
                 pushNotificationDTO.setMessage("- vaidh");
 
                 firebaseNotificationService.sendMessage(pushNotificationDTO);
