@@ -27,6 +27,7 @@ public class Product implements CommonResults {
 
     private String companyName;
 
+    @Column(length = Integer.MAX_VALUE)
     private String description;
 
     public Product() {}

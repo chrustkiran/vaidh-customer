@@ -16,5 +16,7 @@ public enum ProductCategory {
     FITNESS_AND_SUPPLEMENT,
     ELDER_CARE,
     SURGICAL_AND_DRESSING,
-    PET_CARE
+    PET_CARE,
+    REGULAR_FOODS,
+    DIET_FOODS
 }
